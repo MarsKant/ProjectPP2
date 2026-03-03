@@ -1,0 +1,140 @@
+﻿<Page x:Class="RemoteSystemWpf.Pages.ClientPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="Клиент удаленного доступа"
+      KeyDown="Page_KeyDown"
+      KeyUp="Page_KeyUp">
+
+    <Grid>
+        <!-- Фоновое изображение -->
+        <Grid.Background>
+            <ImageBrush ImageSource="pack://application:,,,/RemoteSystemWpf;component/Images/DefaultBackground.jpg" 
+                        Stretch="UniformToFill"/>
+        </Grid.Background>
+
+        <!-- Затемнение -->
+        <Rectangle Fill="#40000000"/>
+
+        <!-- ЛЕВАЯ ЧАСТЬ на всю ширину -->
+        <Grid Margin="15" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Панель подключения -->
+            <Border Grid.Row="0"
+                    Background="#CCFFFFFF"
+                    BorderBrush="Black" 
+                    BorderThickness="1.5"
+                    CornerRadius="6"
+                    Padding="10"
+                    Margin="0,0,0,10">
+
+                <StackPanel>
+                    <!-- IP строка -->
+                    <Grid Margin="0,0,0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="70"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" 
+                                   Text="IP сервера:" 
+                                   FontSize="14"
+                                   VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1" 
+                                 x:Name="IpBox" 
+                                 Text="127.0.0.1" 
+                                 Height="28"
+                                 FontSize="13"
+                                 Padding="4"
+                                 Background="White"
+                                 VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Порт строка -->
+                    <Grid Margin="0,0,0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="70"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" 
+                                   Text="Порт:" 
+                                   FontSize="14"
+                                   VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1" 
+                                 x:Name="PortBox" 
+                                 Text="3006" 
+                                 Height="28"
+                                 FontSize="13"
+                                 Padding="4"
+                                 Background="White"
+                                 VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Кнопки -->
+                    <Grid Margin="0,5,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Кнопка подключения -->
+                        <Button Grid.Column="0" 
+                                x:Name="ConnectBtn" 
+                                Content="Подключиться" 
+                                Click="ConnectClick"
+                                Height="30" 
+                                Background="#F5DEB3"
+                                FontWeight="SemiBold"
+                                FontSize="14"/>
+
+                        <!-- Кнопка отключения (изначально неактивна) -->
+                        <Button Grid.Column="2" 
+                                x:Name="DisconnectBtn" 
+                                Content="Отключиться" 
+                                Click="DisconnectClick"
+                                Height="30" 
+                                Background="#F5B3B3"
+                                FontWeight="SemiBold"
+                                FontSize="14"
+                                IsEnabled="False"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Экран удаленного компьютера -->
+            <Border Grid.Row="1"
+                    Background="Black"
+                    BorderBrush="Black" 
+                    BorderThickness="2"
+                    CornerRadius="8"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+
+                <Grid>
+                    <Image x:Name="ScreenImage" 
+                        Stretch="Fill"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"/>
+
+                        <Rectangle x:Name="InputOverlay"
+                               Fill="Transparent"
+                               MouseMove="ScreenImage_MouseMove"
+                               MouseDown="ScreenImage_MouseDown"
+                               MouseWheel="ScreenImage_MouseWheel"
+                               Focusable="True"
+                               />
+                    <!--GotFocus="InputOverlay_GotFocus"-->
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

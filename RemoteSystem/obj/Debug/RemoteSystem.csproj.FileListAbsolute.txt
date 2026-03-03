@@ -1,0 +1,11 @@
+D:\RemoteSystem\RemoteSystem\bin\Debug\RemoteSystem.exe.config
+D:\RemoteSystem\RemoteSystem\bin\Debug\RemoteSystem.exe
+D:\RemoteSystem\RemoteSystem\bin\Debug\RemoteSystem.pdb
+D:\RemoteSystem\RemoteSystem\bin\Debug\RemoteSystemWpf.exe
+D:\RemoteSystem\RemoteSystem\bin\Debug\RemoteSystemWpf.pdb
+D:\RemoteSystem\RemoteSystem\bin\Debug\RemoteSystemWpf.exe.config
+D:\RemoteSystem\RemoteSystem\obj\Debug\RemoteSystem.csproj.AssemblyReference.cache
+D:\RemoteSystem\RemoteSystem\obj\Debug\RemoteSystem.csproj.CoreCompileInputs.cache
+D:\RemoteSystem\RemoteSystem\obj\Debug\RemoteSy.0D320AD3.Up2Date
+D:\RemoteSystem\RemoteSystem\obj\Debug\RemoteSystem.exe
+D:\RemoteSystem\RemoteSystem\obj\Debug\RemoteSystem.pdb

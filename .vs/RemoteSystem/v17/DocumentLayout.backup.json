@@ -1,0 +1,156 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\RemoteSystem\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A9CE6D2A-E649-4AED-83C2-8AD3DC6286C1}|RemoteSystem\\RemoteSystem.csproj|d:\\remotesystem\\remotesystem\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A9CE6D2A-E649-4AED-83C2-8AD3DC6286C1}|RemoteSystem\\RemoteSystem.csproj|solutionrelative:remotesystem\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|d:\\remotesystem\\remotesystemwpf\\classes\\commandtype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\classes\\commandtype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|d:\\remotesystem\\remotesystemwpf\\classes\\inputcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\classes\\inputcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|d:\\remotesystem\\remotesystemwpf\\classes\\networkpacket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\classes\\networkpacket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|d:\\remotesystem\\remotesystemwpf\\classes\\screencapture.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\classes\\screencapture.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|d:\\remotesystem\\remotesystemwpf\\classes\\tcphelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\classes\\tcphelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|d:\\remotesystem\\remotesystemwpf\\pages\\clientpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\pages\\clientpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|d:\\remotesystem\\remotesystemwpf\\pages\\serverpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\pages\\serverpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\RemoteSystem\\RemoteSystem\\Program.cs",
+              "RelativeDocumentMoniker": "RemoteSystem\\Program.cs",
+              "ToolTip": "D:\\RemoteSystem\\RemoteSystem\\Program.cs*",
+              "RelativeToolTip": "RemoteSystem\\Program.cs*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-03T16:50:01.132Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CommandType.cs",
+              "DocumentMoniker": "D:\\RemoteSystem\\RemoteSystemWpf\\Classes\\CommandType.cs",
+              "RelativeDocumentMoniker": "RemoteSystemWpf\\Classes\\CommandType.cs",
+              "ToolTip": "D:\\RemoteSystem\\RemoteSystemWpf\\Classes\\CommandType.cs",
+              "RelativeToolTip": "RemoteSystemWpf\\Classes\\CommandType.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-03T16:49:37.999Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "InputController.cs",
+              "DocumentMoniker": "D:\\RemoteSystem\\RemoteSystemWpf\\Classes\\InputController.cs",
+              "RelativeDocumentMoniker": "RemoteSystemWpf\\Classes\\InputController.cs",
+              "ToolTip": "D:\\RemoteSystem\\RemoteSystemWpf\\Classes\\InputController.cs",
+              "RelativeToolTip": "RemoteSystemWpf\\Classes\\InputController.cs",
+              "ViewState": "AgIAADcAAAAAAAAAAAAAwFoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-03T16:49:33.47Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "NetworkPacket.cs",
+              "DocumentMoniker": "D:\\RemoteSystem\\RemoteSystemWpf\\Classes\\NetworkPacket.cs",
+              "RelativeDocumentMoniker": "RemoteSystemWpf\\Classes\\NetworkPacket.cs",
+              "ToolTip": "D:\\RemoteSystem\\RemoteSystemWpf\\Classes\\NetworkPacket.cs",
+              "RelativeToolTip": "RemoteSystemWpf\\Classes\\NetworkPacket.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAAwDMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-03T16:49:10.117Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ScreenCapture.cs",
+              "DocumentMoniker": "D:\\RemoteSystem\\RemoteSystemWpf\\Classes\\ScreenCapture.cs",
+              "RelativeDocumentMoniker": "RemoteSystemWpf\\Classes\\ScreenCapture.cs",
+              "ToolTip": "D:\\RemoteSystem\\RemoteSystemWpf\\Classes\\ScreenCapture.cs*",
+              "RelativeToolTip": "RemoteSystemWpf\\Classes\\ScreenCapture.cs*",
+              "ViewState": "AgIAACQAAAAAAAAAAAAqwAQAAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-03T16:49:06.737Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "TcpHelper.cs",
+              "DocumentMoniker": "D:\\RemoteSystem\\RemoteSystemWpf\\Classes\\TcpHelper.cs",
+              "RelativeDocumentMoniker": "RemoteSystemWpf\\Classes\\TcpHelper.cs",
+              "ToolTip": "D:\\RemoteSystem\\RemoteSystemWpf\\Classes\\TcpHelper.cs",
+              "RelativeToolTip": "RemoteSystemWpf\\Classes\\TcpHelper.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-03T16:48:59.73Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ClientPage.xaml.cs",
+              "DocumentMoniker": "D:\\RemoteSystem\\RemoteSystemWpf\\Pages\\ClientPage.xaml.cs",
+              "RelativeDocumentMoniker": "RemoteSystemWpf\\Pages\\ClientPage.xaml.cs",
+              "ToolTip": "D:\\RemoteSystem\\RemoteSystemWpf\\Pages\\ClientPage.xaml.cs*",
+              "RelativeToolTip": "RemoteSystemWpf\\Pages\\ClientPage.xaml.cs*",
+              "ViewState": "AgIAALAAAAAAAAAAAAAAwFYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-03T16:48:38.109Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ServerPage.xaml.cs",
+              "DocumentMoniker": "D:\\RemoteSystem\\RemoteSystemWpf\\Pages\\ServerPage.xaml.cs",
+              "RelativeDocumentMoniker": "RemoteSystemWpf\\Pages\\ServerPage.xaml.cs",
+              "ToolTip": "D:\\RemoteSystem\\RemoteSystemWpf\\Pages\\ServerPage.xaml.cs*",
+              "RelativeToolTip": "RemoteSystemWpf\\Pages\\ServerPage.xaml.cs*",
+              "ViewState": "AgIAABEAAAAAAAAAAAAQwCAAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-03T16:48:07.29Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
