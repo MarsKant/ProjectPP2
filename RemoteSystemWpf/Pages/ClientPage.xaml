@@ -1,0 +1,126 @@
+﻿<Page x:Class="RemoteSystemWpf.Pages.ClientPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="Клиент удаленного доступа"
+      Unloaded="Page_Unloaded">
+
+    <Grid>
+        <Grid.Background>
+            <ImageBrush ImageSource="pack://application:,,,/RemoteSystemWpf;component/Images/DefaultBackground.jpg" 
+                        Stretch="UniformToFill"/>
+        </Grid.Background>
+
+        <Rectangle Fill="#40000000"/>
+
+        <Grid Margin="15" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Background="#CCFFFFFF"
+                    BorderBrush="Black" 
+                    BorderThickness="1.5"
+                    CornerRadius="6"
+                    Padding="10"
+                    Margin="0,0,0,10">
+
+                <StackPanel>
+                    <Grid Margin="0,0,0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="70"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" 
+                                   Text="IP сервера:" 
+                                   FontSize="14"
+                                   VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1" 
+                                 x:Name="IpBox" 
+                                 Text="127.0.0.1" 
+                                 Height="28"
+                                 FontSize="13"
+                                 Padding="4"
+                                 Background="White"/>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="70"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" 
+                                   Text="Порт:" 
+                                   FontSize="14"
+                                   VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1" 
+                                 x:Name="PortBox" 
+                                 Text="8554" 
+                                 Height="28"
+                                 FontSize="13"
+                                 Padding="4"
+                                 Background="White"/>
+                    </Grid>
+
+                    <Grid Margin="0,5,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0" 
+                                x:Name="ConnectBtn" 
+                                Content="Подключиться" 
+                                Click="Connect"
+                                Height="30" 
+                                Background="#F5DEB3"
+                                FontWeight="SemiBold"/>
+
+                        <Button Grid.Column="2" 
+                                x:Name="DisconnectBtn" 
+                                Content="Отключиться" 
+                                Click="Disconnect"
+                                Height="30" 
+                                Background="#F5B3B3"
+                                FontWeight="SemiBold"
+                                IsEnabled="False"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="1"
+                    Background="Black"
+                    BorderBrush="Black" 
+                    BorderThickness="2"
+                    CornerRadius="8">
+
+                <Grid>
+                    <vlc:VideoView x:Name="VideoView" 
+                                   HorizontalAlignment="Stretch" 
+                                   VerticalAlignment="Stretch"/>
+
+                    <!-- Прозрачный оверлей для захвата ввода -->
+                    <Rectangle x:Name="InputOverlay"
+                               Fill="Transparent"
+                               MouseMove="InputOverlay_MouseMove"
+                               MouseDown="InputOverlay_MouseDown"
+                               MouseUp="InputOverlay_MouseUp"
+                               MouseWheel="InputOverlay_MouseWheel"
+                               KeyDown="InputOverlay_KeyDown"
+                               KeyUp="InputOverlay_KeyUp"
+                               Focusable="True"
+                               IsHitTestVisible="True"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>
