@@ -22,35 +22,8 @@ namespace RemoteSystemWpf.Pages
         {
             InitializeComponent();
 
-            // Проверяем наличие компонентов при загрузке
-            CheckComponents();
         }
 
-        private void CheckComponents()
-        {
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-
-            // Проверяем FFmpeg
-            string ffmpegPath = Path.Combine(baseDir, "ffmpeg", "ffmpeg.exe");
-            if (File.Exists(ffmpegPath))
-                AddLog($"✅ FFmpeg найден: {ffmpegPath}");
-            else
-                AddLog($"❌ FFmpeg не найден по пути: {ffmpegPath}");
-
-            // Проверяем MediaMTX
-            string mtxPath = Path.Combine(baseDir, "MediaMTX", "mediamtx.exe");
-            if (File.Exists(mtxPath))
-                AddLog($"✅ MediaMTX найден: {mtxPath}");
-            else
-                AddLog($"❌ MediaMTX не найден по пути: {mtxPath}");
-
-            // Проверяем VLC библиотеки
-            string vlcPath = Path.Combine(baseDir, "libvlc", "win-x64", "libvlc.dll");
-            if (File.Exists(vlcPath))
-                AddLog($"✅ VLC найден: {vlcPath}");
-            else
-                AddLog($"❌ VLC не найден по пути: {vlcPath}");
-        }
 
         private void Start_Click(object sender, System.Windows.RoutedEventArgs e)
         {
@@ -69,22 +42,8 @@ namespace RemoteSystemWpf.Pages
                 string serverPath = Path.Combine(baseDir, "MediaMTX", "mediamtx.exe");
                 string ffmpegPath = Path.Combine(baseDir, "ffmpeg", "ffmpeg.exe");
 
-                if (!File.Exists(serverPath))
-                {
-                    AddLog($"❌ MediaMTX не найден: {serverPath}");
-                    return;
-                }
 
-                if (!File.Exists(ffmpegPath))
-                {
-                    AddLog($"❌ FFmpeg не найден: {ffmpegPath}");
-                    return;
-                }
 
-                AddLog($"✅ FFmpeg: {ffmpegPath}");
-                AddLog($"✅ MediaMTX: {serverPath}");
-
-                // Запуск MediaMTX с выводом логов
                 _rtspServerProcess = new Process
                 {
                     StartInfo = new ProcessStartInfo
@@ -99,22 +58,6 @@ namespace RemoteSystemWpf.Pages
                     EnableRaisingEvents = true
                 };
 
-                _rtspServerProcess.OutputDataReceived += (s, args) =>
-                {
-                    if (!string.IsNullOrEmpty(args.Data))
-                        Dispatcher.Invoke(() => AddLog($"MediaMTX: {args.Data}"));
-                };
-
-                _rtspServerProcess.ErrorDataReceived += (s, args) =>
-                {
-                    if (!string.IsNullOrEmpty(args.Data))
-                        Dispatcher.Invoke(() => AddLog($"MediaMTX Error: {args.Data}"));
-                };
-
-                _rtspServerProcess.Exited += (s, args) =>
-                {
-                    Dispatcher.Invoke(() => AddLog("MediaMTX процесс завершился"));
-                };
 
                 _rtspServerProcess.Start();
                 _rtspServerProcess.BeginOutputReadLine();
@@ -122,7 +65,6 @@ namespace RemoteSystemWpf.Pages
 
                 Thread.Sleep(2000);
 
-                // Запуск FFmpeg
                 string arguments = $"-f gdigrab -framerate 15 -i desktop -c:v libx264 -preset ultrafast -tune zerolatency -b:v 1M -f rtsp rtsp://localhost:{port}/stream";
 
                 _ffmpegProcess = new Process
@@ -186,21 +128,18 @@ namespace RemoteSystemWpf.Pages
                     AddLog("FFmpeg остановлен");
                 }
 
-                // Останавливаем MediaMTX
                 if (_rtspServerProcess != null && !_rtspServerProcess.HasExited)
                 {
                     _rtspServerProcess.Kill();
                     _rtspServerProcess.WaitForExit(1000);
                     _rtspServerProcess.Dispose();
                     _rtspServerProcess = null;
-                    AddLog("MediaMTX остановлен");
                 }
 
-                // Останавливаем сервер управления
+
                 _inputListener?.Stop();
                 _inputThread?.Join(1000);
 
-                // Дополнительно убиваем все процессы по имени
                 foreach (var proc in Process.GetProcessesByName("mediamtx"))
                 {
                     try { proc.Kill(); } catch { }

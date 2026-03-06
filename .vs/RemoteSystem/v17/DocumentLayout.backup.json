@@ -7,16 +7,16 @@
       "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\pages\\serverpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|D:\\RemoteSystem\\remotesystemwpf\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|D:\\RemoteSystem\\remotesystemwpf\\classes\\helpers\\downloadhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\classes\\helpers\\downloadhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|D:\\RemoteSystem\\remotesystemwpf\\pages\\serverpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\pages\\serverpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|D:\\RemoteSystem\\remotesystemwpf\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|D:\\RemoteSystem\\remotesystemwpf\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
@@ -53,19 +53,19 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "App.xaml.cs",
               "DocumentMoniker": "D:\\RemoteSystem\\RemoteSystemWpf\\App.xaml.cs",
               "RelativeDocumentMoniker": "RemoteSystemWpf\\App.xaml.cs",
               "ToolTip": "D:\\RemoteSystem\\RemoteSystemWpf\\App.xaml.cs",
               "RelativeToolTip": "RemoteSystemWpf\\App.xaml.cs",
-              "ViewState": "AgIAAAoAAAAAAAAAAAA1wDEAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAiwB4AAAA/AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-05T11:29:00.831Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "ServerPage.xaml",
               "DocumentMoniker": "D:\\RemoteSystem\\RemoteSystemWpf\\Pages\\ServerPage.xaml",
               "RelativeDocumentMoniker": "RemoteSystemWpf\\Pages\\ServerPage.xaml",
@@ -99,13 +99,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "DownloadHelper.cs",
               "DocumentMoniker": "D:\\RemoteSystem\\RemoteSystemWpf\\Classes\\Helpers\\DownloadHelper.cs",
               "RelativeDocumentMoniker": "RemoteSystemWpf\\Classes\\Helpers\\DownloadHelper.cs",
               "ToolTip": "D:\\RemoteSystem\\RemoteSystemWpf\\Classes\\Helpers\\DownloadHelper.cs",
               "RelativeToolTip": "RemoteSystemWpf\\Classes\\Helpers\\DownloadHelper.cs",
-              "ViewState": "AgIAAFQAAAAAAAAAAAAiwHEAAAARAAAAAAAAAA==",
+              "ViewState": "AgIAADwBAAAAAAAAAAAiwFcBAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-05T11:42:40.201Z"
             },
@@ -115,9 +115,9 @@
               "Title": "ServerPage.xaml.cs",
               "DocumentMoniker": "D:\\RemoteSystem\\RemoteSystemWpf\\Pages\\ServerPage.xaml.cs",
               "RelativeDocumentMoniker": "RemoteSystemWpf\\Pages\\ServerPage.xaml.cs",
-              "ToolTip": "D:\\RemoteSystem\\RemoteSystemWpf\\Pages\\ServerPage.xaml.cs",
-              "RelativeToolTip": "RemoteSystemWpf\\Pages\\ServerPage.xaml.cs",
-              "ViewState": "AgIAAIIAAAAAAAAAAADwv58AAAAAAAAAAAAAAA==",
+              "ToolTip": "D:\\RemoteSystem\\RemoteSystemWpf\\Pages\\ServerPage.xaml.cs*",
+              "RelativeToolTip": "RemoteSystemWpf\\Pages\\ServerPage.xaml.cs*",
+              "ViewState": "AgIAAPgAAAAAAAAAAAAQwIcAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-04T12:36:41.713Z",
               "EditorCaption": ""
