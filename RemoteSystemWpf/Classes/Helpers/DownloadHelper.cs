@@ -201,52 +201,136 @@ webrtcPort: 8889
                 string vlcDir = Path.Combine(BaseDir, "libvlc", "win-x64");
                 string vlcDll = Path.Combine(vlcDir, "libvlc.dll");
 
-                if (File.Exists(vlcDll))
-                {
-                    progress?.Report("VLC уже существует");
-                    return true;
-                }
+                progress?.Report($"📁 Папка VLC: {vlcDir}");
 
+                // Создаем папку если нет
                 Directory.CreateDirectory(vlcDir);
 
-                // Скачиваем VLC 3.0.11 (стабильная версия)
+                // Проверяем существующий файл
+                if (File.Exists(vlcDll))
+                {
+                    FileInfo fi = new FileInfo(vlcDll);
+                    progress?.Report($"📄 Найден существующий libvlc.dll, размер: {fi.Length} байт");
+
+                    if (fi.Length > 1000000) // Больше 1MB - значит файл нормальный
+                    {
+                        progress?.Report("✅ VLC уже существует");
+                        return true;
+                    }
+                    else
+                    {
+                        progress?.Report("⚠️ Файл слишком маленький, удаляем...");
+                        Directory.Delete(vlcDir, true);
+                        Directory.CreateDirectory(vlcDir);
+                    }
+                }
+
+                // Скачиваем VLC
                 string url = "https://get.videolan.org/vlc/3.0.11/win64/vlc-3.0.11-win64.zip";
                 string zipPath = Path.Combine(BaseDir, "vlc_temp.zip");
 
-                progress?.Report("Загрузка VLC (60 МБ, может занять время)...");
+                progress?.Report($"🌐 Скачивание VLC (50 МБ) с {url}...");
 
                 using (var client = new System.Net.WebClient())
                 {
+                    client.DownloadProgressChanged += (s, e) =>
+                    {
+                        if (e.TotalBytesToReceive > 0)
+                        {
+                            int percent = (int)((double)e.BytesReceived / e.TotalBytesToReceive * 100);
+                            progress?.Report($"Загрузка VLC: {percent}% ({e.BytesReceived / 1024 / 1024} МБ из {e.TotalBytesToReceive / 1024 / 1024} МБ)");
+                        }
+                    };
+
                     await client.DownloadFileTaskAsync(url, zipPath);
                 }
 
-                progress?.Report("Распаковка VLC...");
+                progress?.Report("📦 Распаковка VLC...");
 
-                // ИСПРАВЛЕНО: убрали третий параметр
+                // Распаковываем
                 System.IO.Compression.ZipFile.ExtractToDirectory(zipPath, BaseDir);
 
                 // Ищем распакованную папку
                 string extractedDir = Path.Combine(BaseDir, "vlc-3.0.11");
                 if (Directory.Exists(extractedDir))
                 {
-                    // Копируем нужные файлы
-                    string pluginsSrc = Path.Combine(extractedDir, "plugins");
-                    string pluginsDst = Path.Combine(vlcDir, "plugins");
-
-                    // Копируем папку plugins
-                    CopyDirectory(pluginsSrc, pluginsDst);
+                    progress?.Report($"📂 Найдена папка: {extractedDir}");
 
                     // Копируем основные DLL
-                    File.Copy(Path.Combine(extractedDir, "libvlc.dll"), Path.Combine(vlcDir, "libvlc.dll"), true);
-                    File.Copy(Path.Combine(extractedDir, "libvlccore.dll"), Path.Combine(vlcDir, "libvlccore.dll"), true);
+                    string sourceLibVlc = Path.Combine(extractedDir, "libvlc.dll");
+                    string sourceLibVlcCore = Path.Combine(extractedDir, "libvlccore.dll");
+                    string sourcePlugins = Path.Combine(extractedDir, "plugins");
+                    string destPlugins = Path.Combine(vlcDir, "plugins");
+
+                    if (File.Exists(sourceLibVlc))
+                    {
+                        File.Copy(sourceLibVlc, Path.Combine(vlcDir, "libvlc.dll"), true);
+                        progress?.Report("✅ libvlc.dll скопирован");
+                    }
+
+                    if (File.Exists(sourceLibVlcCore))
+                    {
+                        File.Copy(sourceLibVlcCore, Path.Combine(vlcDir, "libvlccore.dll"), true);
+                        progress?.Report("✅ libvlccore.dll скопирован");
+                    }
+
+                    if (Directory.Exists(sourcePlugins))
+                    {
+                        CopyDirectory(sourcePlugins, destPlugins);
+                        progress?.Report($"✅ Папка plugins скопирована ({(Directory.GetFiles(destPlugins, "*.*", SearchOption.AllDirectories).Length)} файлов)");
+                    }
 
                     // Удаляем временную папку
                     try { Directory.Delete(extractedDir, true); } catch { }
                 }
+                else
+                {
+                    // Если не нашли папку, ищем по всей директории
+                    var files = Directory.GetFiles(BaseDir, "libvlc.dll", SearchOption.AllDirectories);
+                    if (files.Length > 0)
+                    {
+                        string foundDir = Path.GetDirectoryName(files[0]);
+                        progress?.Report($"📂 Найдена папка VLC: {foundDir}");
 
+                        // Копируем из найденной папки
+                        foreach (var file in Directory.GetFiles(foundDir, "*.dll"))
+                        {
+                            string dest = Path.Combine(vlcDir, Path.GetFileName(file));
+                            File.Copy(file, dest, true);
+                        }
+
+                        string foundPlugins = Path.Combine(foundDir, "plugins");
+                        if (Directory.Exists(foundPlugins))
+                        {
+                            CopyDirectory(foundPlugins, Path.Combine(vlcDir, "plugins"));
+                        }
+                    }
+                }
+
+                // Очистка
                 File.Delete(zipPath);
-                progress?.Report("✅ VLC готов");
-                return true;
+
+                // Финальная проверка
+                if (File.Exists(vlcDll))
+                {
+                    FileInfo finalFi = new FileInfo(vlcDll);
+                    progress?.Report($"✅ VLC готов! libvlc.dll размер: {finalFi.Length} байт");
+
+                    // Проверяем наличие плагинов
+                    string pluginsDir = Path.Combine(vlcDir, "plugins");
+                    if (Directory.Exists(pluginsDir))
+                    {
+                        int pluginCount = Directory.GetFiles(pluginsDir, "*.dll", SearchOption.AllDirectories).Length;
+                        progress?.Report($"📦 Плагинов загружено: {pluginCount}");
+                    }
+
+                    return true;
+                }
+                else
+                {
+                    progress?.Report("❌ VLC не установился");
+                    return false;
+                }
             }
             catch (Exception ex)
             {
@@ -255,6 +339,7 @@ webrtcPort: 8889
             }
         }
 
+        // Вспомогательный метод для копирования папок
         private static void CopyDirectory(string sourceDir, string targetDir)
         {
             Directory.CreateDirectory(targetDir);

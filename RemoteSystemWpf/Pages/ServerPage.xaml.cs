@@ -72,14 +72,12 @@ namespace RemoteSystemWpf.Pages
                 if (!File.Exists(serverPath))
                 {
                     AddLog($"❌ MediaMTX не найден: {serverPath}");
-                    AddLog("Скачайте MediaMTX с https://github.com/bluenviron/mediamtx/releases");
                     return;
                 }
 
                 if (!File.Exists(ffmpegPath))
                 {
                     AddLog($"❌ FFmpeg не найден: {ffmpegPath}");
-                    AddLog("Скачайте FFmpeg с https://ffmpeg.org/download.html");
                     return;
                 }
 
@@ -115,14 +113,13 @@ namespace RemoteSystemWpf.Pages
 
                 _rtspServerProcess.Exited += (s, args) =>
                 {
-                    Dispatcher.Invoke(() => AddLog("⚠️ MediaMTX процесс завершился"));
+                    Dispatcher.Invoke(() => AddLog("MediaMTX процесс завершился"));
                 };
 
                 _rtspServerProcess.Start();
                 _rtspServerProcess.BeginOutputReadLine();
                 _rtspServerProcess.BeginErrorReadLine();
 
-                AddLog("MediaMTX запущен, ожидание 2 секунды...");
                 Thread.Sleep(2000);
 
                 // Запуск FFmpeg
@@ -142,26 +139,8 @@ namespace RemoteSystemWpf.Pages
                     EnableRaisingEvents = true
                 };
 
-                _ffmpegProcess.OutputDataReceived += (s, args) =>
-                {
-                    if (!string.IsNullOrEmpty(args.Data))
-                        Dispatcher.Invoke(() => AddLog($"FFmpeg: {args.Data}"));
-                };
 
-                _ffmpegProcess.ErrorDataReceived += (s, args) =>
-                {
-                    try
-                    {
-                        if (!string.IsNullOrEmpty(args.Data))
-                            Dispatcher.Invoke(() => AddLog($"FFmpeg: {args.Data}"));
-                    }
-                    catch { }
-                };
 
-                _ffmpegProcess.Exited += (s, args) =>
-                {
-                    Dispatcher.Invoke(() => AddLog("⚠️ FFmpeg процесс завершился"));
-                };
 
                 _ffmpegProcess.Start();
                 _ffmpegProcess.BeginOutputReadLine();
@@ -193,7 +172,7 @@ namespace RemoteSystemWpf.Pages
         {
             try
             {
-                AddLog("🛑 Остановка сервера...");
+                AddLog("Остановка сервера...");
 
                 _isListening = false;
 
@@ -204,7 +183,7 @@ namespace RemoteSystemWpf.Pages
                     _ffmpegProcess.WaitForExit(1000);
                     _ffmpegProcess.Dispose();
                     _ffmpegProcess = null;
-                    AddLog("✅ FFmpeg остановлен");
+                    AddLog("FFmpeg остановлен");
                 }
 
                 // Останавливаем MediaMTX
@@ -214,7 +193,7 @@ namespace RemoteSystemWpf.Pages
                     _rtspServerProcess.WaitForExit(1000);
                     _rtspServerProcess.Dispose();
                     _rtspServerProcess = null;
-                    AddLog("✅ MediaMTX остановлен");
+                    AddLog("MediaMTX остановлен");
                 }
 
                 // Останавливаем сервер управления
@@ -232,7 +211,7 @@ namespace RemoteSystemWpf.Pages
                     try { proc.Kill(); } catch { }
                 }
 
-                AddLog("✅ Сервер полностью остановлен");
+                AddLog("Сервер полностью остановлен");
 
                 Startbtn.IsEnabled = true;
                 Stopbtn.IsEnabled = false;
@@ -240,7 +219,7 @@ namespace RemoteSystemWpf.Pages
             }
             catch (Exception ex)
             {
-                AddLog($"❌ Ошибка при остановке: {ex.Message}");
+                AddLog($"Ошибка при остановке: {ex.Message}");
             }
         }
 
@@ -267,11 +246,11 @@ namespace RemoteSystemWpf.Pages
                 });
                 _inputThread.Start();
 
-                AddLog($"🖱️ Сервер управления запущен на порту {port}");
+                AddLog($"Сервер управления запущен на порту {port}");
             }
             catch (Exception ex)
             {
-                AddLog($"❌ Ошибка запуска сервера управления: {ex.Message}");
+                AddLog($"Ошибка запуска сервера управления: {ex.Message}");
             }
         }
 
