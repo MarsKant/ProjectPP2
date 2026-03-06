@@ -3,71 +3,49 @@ using System.Windows;
 using RemoteSystemWpf.Helpers;
 using System.Threading.Tasks;
 using System.IO;
-using System.Windows.Threading;
 
 namespace RemoteSystemWpf
 {
     public partial class App : Application
     {
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
-            // Показываем окно загрузки
-            var splash = new Window
+            var splashWindow = new Window
             {
                 Title = "Загрузка",
-                Width = 400,
-                Height = 120,
+                Width = 450,
+                Height = 200,
                 WindowStartupLocation = WindowStartupLocation.CenterScreen,
                 WindowStyle = WindowStyle.None,
                 ResizeMode = ResizeMode.NoResize,
                 Topmost = true
             };
 
-            var text = new System.Windows.Controls.TextBlock
+            var progressText = new System.Windows.Controls.TextBlock
             {
                 Text = "Проверка компонентов...",
+                Margin = new Thickness(20),
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
                 VerticalAlignment = System.Windows.VerticalAlignment.Center,
-                FontSize = 14
+                FontSize = 14,
+                TextWrapping = System.Windows.TextWrapping.Wrap
             };
 
-            splash.Content = text;
-            splash.Show();
+            splashWindow.Content = progressText;
+            splashWindow.Show();
 
-            // Запускаем загрузку в фоне
-            var dispatcher = Dispatcher.CurrentDispatcher;
-
-            Task.Run(async () =>
+            var progress = new Progress<string>(msg =>
             {
-                try
-                {
-                    // Проверяем FFmpeg
-                    string ffmpegPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg", "ffmpeg.exe");
-                    if (!File.Exists(ffmpegPath))
-                    {
-                        dispatcher.Invoke(() => text.Text = "Скачивание FFmpeg...");
-                        await DownloadHelper.DownloadFFmpeg();
-                    }
-
-                    // Проверяем MediaMTX
-                    string mtxPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MediaMTX", "mediamtx.exe");
-                    if (!File.Exists(mtxPath))
-                    {
-                        dispatcher.Invoke(() => text.Text = "Скачивание MediaMTX...");
-                        await DownloadHelper.DownloadMediaMTX();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    dispatcher.Invoke(() => MessageBox.Show($"Ошибка: {ex.Message}"));
-                }
-                finally
-                {
-                    dispatcher.Invoke(() => splash.Close());
-                }
+                progressText.Text = msg;
             });
 
-            // Запускаем главное окно
+            // Скачиваем всё необходимое
+            await DownloadHelper.DownloadFFmpeg(progress);
+            await DownloadHelper.DownloadMediaMTX(progress);
+            await DownloadHelper.DownloadVLC(progress);
+
+            splashWindow.Close();
+
             base.OnStartup(e);
         }
     }

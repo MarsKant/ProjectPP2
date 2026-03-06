@@ -21,6 +21,35 @@ namespace RemoteSystemWpf.Pages
         public ServerPage()
         {
             InitializeComponent();
+
+            // Проверяем наличие компонентов при загрузке
+            CheckComponents();
+        }
+
+        private void CheckComponents()
+        {
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+
+            // Проверяем FFmpeg
+            string ffmpegPath = Path.Combine(baseDir, "ffmpeg", "ffmpeg.exe");
+            if (File.Exists(ffmpegPath))
+                AddLog($"✅ FFmpeg найден: {ffmpegPath}");
+            else
+                AddLog($"❌ FFmpeg не найден по пути: {ffmpegPath}");
+
+            // Проверяем MediaMTX
+            string mtxPath = Path.Combine(baseDir, "MediaMTX", "mediamtx.exe");
+            if (File.Exists(mtxPath))
+                AddLog($"✅ MediaMTX найден: {mtxPath}");
+            else
+                AddLog($"❌ MediaMTX не найден по пути: {mtxPath}");
+
+            // Проверяем VLC библиотеки
+            string vlcPath = Path.Combine(baseDir, "libvlc", "win-x64", "libvlc.dll");
+            if (File.Exists(vlcPath))
+                AddLog($"✅ VLC найден: {vlcPath}");
+            else
+                AddLog($"❌ VLC не найден по пути: {vlcPath}");
         }
 
         private void Start_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -33,32 +62,31 @@ namespace RemoteSystemWpf.Pages
                     return;
                 }
 
-                // Останавливаем предыдущие процессы ПРИНУДИТЕЛЬНО
+                // Останавливаем предыдущие процессы
                 Stop();
 
                 string baseDir = AppDomain.CurrentDomain.BaseDirectory;
                 string serverPath = Path.Combine(baseDir, "MediaMTX", "mediamtx.exe");
                 string ffmpegPath = Path.Combine(baseDir, "ffmpeg", "ffmpeg.exe");
 
-                AddLog($"Поиск MediaMTX: {serverPath}");
-                AddLog($"Поиск FFmpeg: {ffmpegPath}");
-
                 if (!File.Exists(serverPath))
                 {
                     AddLog($"❌ MediaMTX не найден: {serverPath}");
+                    AddLog("Скачайте MediaMTX с https://github.com/bluenviron/mediamtx/releases");
                     return;
                 }
 
                 if (!File.Exists(ffmpegPath))
                 {
                     AddLog($"❌ FFmpeg не найден: {ffmpegPath}");
+                    AddLog("Скачайте FFmpeg с https://ffmpeg.org/download.html");
                     return;
                 }
 
-                AddLog($"✅ MediaMTX: {serverPath}");
                 AddLog($"✅ FFmpeg: {ffmpegPath}");
+                AddLog($"✅ MediaMTX: {serverPath}");
 
-                // Запуск MediaMTX с правильными параметрами
+                // Запуск MediaMTX с выводом логов
                 _rtspServerProcess = new Process
                 {
                     StartInfo = new ProcessStartInfo
@@ -94,7 +122,8 @@ namespace RemoteSystemWpf.Pages
                 _rtspServerProcess.BeginOutputReadLine();
                 _rtspServerProcess.BeginErrorReadLine();
 
-                Thread.Sleep(2000); // Даем время на запуск
+                AddLog("MediaMTX запущен, ожидание 2 секунды...");
+                Thread.Sleep(2000);
 
                 // Запуск FFmpeg
                 string arguments = $"-f gdigrab -framerate 15 -i desktop -c:v libx264 -preset ultrafast -tune zerolatency -b:v 1M -f rtsp rtsp://localhost:{port}/stream";
@@ -121,8 +150,12 @@ namespace RemoteSystemWpf.Pages
 
                 _ffmpegProcess.ErrorDataReceived += (s, args) =>
                 {
-                    if (!string.IsNullOrEmpty(args.Data))
-                        Dispatcher.Invoke(() => AddLog($"FFmpeg: {args.Data}"));
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(args.Data))
+                            Dispatcher.Invoke(() => AddLog($"FFmpeg: {args.Data}"));
+                    }
+                    catch { }
                 };
 
                 _ffmpegProcess.Exited += (s, args) =>
