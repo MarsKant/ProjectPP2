@@ -2,7 +2,7 @@
 using System.Windows;
 using RemoteSystemWpf.Helpers;
 using System.Threading.Tasks;
-using System.IO;
+using LibVLCSharp.Shared;
 
 namespace RemoteSystemWpf
 {
@@ -10,43 +10,76 @@ namespace RemoteSystemWpf
     {
         protected override async void OnStartup(StartupEventArgs e)
         {
+            base.OnStartup(e);
+            Console.WriteLine("[DEBUG] Приложение OnStartup запущено.");
+
+            AppDomain.CurrentDomain.UnhandledException += (s, ex) =>
+                MessageBox.Show($"Критическая ошибка: {ex.ExceptionObject}");
+
+            this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+            // Инициализация VLC с параметрами против ошибок COM и аудио
+            try
+            {
+                Console.WriteLine("[DEBUG] Инициализация Core LibVLC...");
+                // Передаем параметры сразу при инициализации ядра, если возможно, 
+                // или гарантируем, что это произойдет один раз.
+                Core.Initialize();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Ошибка инициализации VLC: {ex.Message}");
+            }
+
             var splashWindow = new Window
             {
-                Title = "Загрузка",
+                Title = "Загрузка системы",
                 Width = 450,
-                Height = 200,
+                Height = 220,
                 WindowStartupLocation = WindowStartupLocation.CenterScreen,
                 WindowStyle = WindowStyle.None,
-                ResizeMode = ResizeMode.NoResize,
                 Topmost = true
             };
 
             var progressText = new System.Windows.Controls.TextBlock
             {
-                Text = "Проверка компонентов...",
+                Text = "Подготовка среды...",
                 Margin = new Thickness(20),
-                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
-                VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
                 FontSize = 14,
-                TextWrapping = System.Windows.TextWrapping.Wrap
+                TextAlignment = TextAlignment.Center
             };
 
             splashWindow.Content = progressText;
             splashWindow.Show();
 
-            var progress = new Progress<string>(msg =>
-            {
+            IProgress<string> progress = new Progress<string>(msg => {
                 progressText.Text = msg;
+                Console.WriteLine($"[LOG] {msg}");
             });
 
-            // Скачиваем всё необходимое
-            await DownloadHelper.DownloadFFmpeg(progress);
-            await DownloadHelper.DownloadMediaMTX(progress);
-            await DownloadHelper.DownloadVLC(progress);
+            try
+            {
+                // Эмуляция/проверка компонентов
+                await DownloadHelper.DownloadFFmpeg(progress);
+                await DownloadHelper.DownloadMediaMTX(progress);
+                await DownloadHelper.DownloadVLC(progress);
 
-            splashWindow.Close();
+                Console.WriteLine("[DEBUG] Все компоненты готовы. Запуск MainWindow...");
+                var mainWindow = new MainWindow();
+                this.MainWindow = mainWindow;
 
-            base.OnStartup(e);
+                splashWindow.Close();
+                mainWindow.Show();
+                this.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[FATAL] Ошибка загрузки: {ex}");
+                MessageBox.Show($"Ошибка при подготовке системы: {ex.Message}");
+                this.Shutdown();
+            }
         }
     }
 }

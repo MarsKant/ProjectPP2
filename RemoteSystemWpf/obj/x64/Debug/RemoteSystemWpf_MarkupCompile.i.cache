@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 D:\RemoteSystem\RemoteSystemWpf\App.xaml
-3-1737192315
+41486319850
 
-91779355849
-128-1203142408
-MainWindow.xaml;Pages\ClientPage.xaml;Pages\ServerPage.xaml;
+101135400244
+129655650270
+MainWindow.xaml;Pages\ClientPage.xaml;Pages\SelectionPage.xaml;Pages\ServerPage.xaml;
 
-False
+True
 

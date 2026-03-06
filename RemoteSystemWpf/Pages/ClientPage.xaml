@@ -10,29 +10,28 @@
       Unloaded="Page_Unloaded">
 
     <Grid>
-        <Grid.Background>
-            <ImageBrush ImageSource="pack://application:,,,/RemoteSystemWpf;component/Images/DefaultBackground.jpg" 
-                        Stretch="UniformToFill"/>
-        </Grid.Background>
+        <Grid x:Name="BackgroundLayer">
+            <Grid.Background>
+                <ImageBrush ImageSource="pack://application:,,,/RemoteSystemWpf;component/Images/DefaultBackground.jpg" 
+                            Stretch="UniformToFill"/>
+            </Grid.Background>
+            <Rectangle Fill="#40000000"/>
+        </Grid>
 
-        <Rectangle Fill="#40000000"/>
-
-        <Grid Margin="15" VerticalAlignment="Stretch">
+        <Grid VerticalAlignment="Stretch">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
-                <!-- Звездочка важна! -->
             </Grid.RowDefinitions>
 
-            <!-- Панель подключения -->
-            <Border Grid.Row="0"
+            <Border x:Name="ConnectionPanel" 
+                    Grid.Row="0"
                     Background="#CCFFFFFF"
                     BorderBrush="Black" 
                     BorderThickness="1.5"
                     CornerRadius="6"
                     Padding="10"
-                    Margin="0,0,0,10">
-
+                    Margin="15,15,15,10">
                 <StackPanel>
                     <Grid Margin="0,0,0,5">
                         <Grid.ColumnDefinitions>
@@ -99,22 +98,20 @@
                 </StackPanel>
             </Border>
 
-            <!-- Контейнер для видео и оверлея -->
-            <Border Grid.Row="1"
+            <Border x:Name="VideoContainer"
+                    Grid.Row="1"
                     Background="Black"
                     BorderBrush="Black" 
                     BorderThickness="2"
                     CornerRadius="8"
-                    Height="Auto"
+                    Margin="15,0,15,15" 
                     VerticalAlignment="Stretch">
 
                 <Grid>
-                    <!-- VideoView на заднем плане -->
                     <vlc:VideoView x:Name="VideoView" 
                                    HorizontalAlignment="Stretch" 
                                    VerticalAlignment="Stretch"/>
 
-                    <!-- Оверлей поверх VideoView -->
                     <Rectangle x:Name="InputOverlay"
                                Fill="Transparent"
                                MouseMove="InputOverlay_MouseMove"
