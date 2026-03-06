@@ -33,26 +33,32 @@ namespace RemoteSystemWpf.Pages
                     return;
                 }
 
-                // Используем относительные пути
+                // Останавливаем предыдущие процессы ПРИНУДИТЕЛЬНО
+                Stop();
+
                 string baseDir = AppDomain.CurrentDomain.BaseDirectory;
                 string serverPath = Path.Combine(baseDir, "MediaMTX", "mediamtx.exe");
                 string ffmpegPath = Path.Combine(baseDir, "ffmpeg", "ffmpeg.exe");
 
+                AddLog($"Поиск MediaMTX: {serverPath}");
+                AddLog($"Поиск FFmpeg: {ffmpegPath}");
+
                 if (!File.Exists(serverPath))
                 {
-                    AddLog($"MediaMTX не найден по пути: {serverPath}");
+                    AddLog($"❌ MediaMTX не найден: {serverPath}");
                     return;
                 }
 
                 if (!File.Exists(ffmpegPath))
                 {
-                    AddLog($"FFmpeg не найден по пути: {ffmpegPath}");
+                    AddLog($"❌ FFmpeg не найден: {ffmpegPath}");
                     return;
                 }
 
-                Stop();
+                AddLog($"✅ MediaMTX: {serverPath}");
+                AddLog($"✅ FFmpeg: {ffmpegPath}");
 
-                // Запустить RTSP сервер
+                // Запуск MediaMTX с правильными параметрами
                 _rtspServerProcess = new Process
                 {
                     StartInfo = new ProcessStartInfo
@@ -60,13 +66,37 @@ namespace RemoteSystemWpf.Pages
                         FileName = serverPath,
                         WorkingDirectory = Path.Combine(baseDir, "MediaMTX"),
                         UseShellExecute = false,
-                        CreateNoWindow = true
-                    }
+                        CreateNoWindow = true,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
+                    },
+                    EnableRaisingEvents = true
                 };
+
+                _rtspServerProcess.OutputDataReceived += (s, args) =>
+                {
+                    if (!string.IsNullOrEmpty(args.Data))
+                        Dispatcher.Invoke(() => AddLog($"MediaMTX: {args.Data}"));
+                };
+
+                _rtspServerProcess.ErrorDataReceived += (s, args) =>
+                {
+                    if (!string.IsNullOrEmpty(args.Data))
+                        Dispatcher.Invoke(() => AddLog($"MediaMTX Error: {args.Data}"));
+                };
+
+                _rtspServerProcess.Exited += (s, args) =>
+                {
+                    Dispatcher.Invoke(() => AddLog("⚠️ MediaMTX процесс завершился"));
+                };
+
                 _rtspServerProcess.Start();
+                _rtspServerProcess.BeginOutputReadLine();
+                _rtspServerProcess.BeginErrorReadLine();
 
-                Thread.Sleep(2000);
+                Thread.Sleep(2000); // Даем время на запуск
 
+                // Запуск FFmpeg
                 string arguments = $"-f gdigrab -framerate 15 -i desktop -c:v libx264 -preset ultrafast -tune zerolatency -b:v 1M -f rtsp rtsp://localhost:{port}/stream";
 
                 _ffmpegProcess = new Process
@@ -76,16 +106,39 @@ namespace RemoteSystemWpf.Pages
                         FileName = ffmpegPath,
                         Arguments = arguments,
                         UseShellExecute = false,
-                        CreateNoWindow = true
-                    }
+                        CreateNoWindow = true,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
+                    },
+                    EnableRaisingEvents = true
                 };
+
+                _ffmpegProcess.OutputDataReceived += (s, args) =>
+                {
+                    if (!string.IsNullOrEmpty(args.Data))
+                        Dispatcher.Invoke(() => AddLog($"FFmpeg: {args.Data}"));
+                };
+
+                _ffmpegProcess.ErrorDataReceived += (s, args) =>
+                {
+                    if (!string.IsNullOrEmpty(args.Data))
+                        Dispatcher.Invoke(() => AddLog($"FFmpeg: {args.Data}"));
+                };
+
+                _ffmpegProcess.Exited += (s, args) =>
+                {
+                    Dispatcher.Invoke(() => AddLog("⚠️ FFmpeg процесс завершился"));
+                };
+
                 _ffmpegProcess.Start();
+                _ffmpegProcess.BeginOutputReadLine();
+                _ffmpegProcess.BeginErrorReadLine();
 
                 StartInputServer(port + 1);
 
-                AddLog($"Трансляция запущена на порту {port}");
-                AddLog($"RTSP: rtsp://{GetLocalIP()}:{port}/stream");
-                AddLog($"Управление: {GetLocalIP()}:{port + 1}");
+                AddLog($"✅ Трансляция запущена на порту {port}");
+                AddLog($"📡 RTSP: rtsp://{GetLocalIP()}:{port}/stream");
+                AddLog($"🖱️ Управление: {GetLocalIP()}:{port + 1}");
 
                 Startbtn.IsEnabled = false;
                 Stopbtn.IsEnabled = true;
@@ -93,7 +146,7 @@ namespace RemoteSystemWpf.Pages
             }
             catch (Exception ex)
             {
-                AddLog($"Ошибка: {ex.Message}");
+                AddLog($"❌ Ошибка: {ex.Message}");
                 Stop();
             }
         }
@@ -101,6 +154,61 @@ namespace RemoteSystemWpf.Pages
         private void Stop_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             Stop();
+        }
+
+        private void Stop()
+        {
+            try
+            {
+                AddLog("🛑 Остановка сервера...");
+
+                _isListening = false;
+
+                // Останавливаем FFmpeg
+                if (_ffmpegProcess != null && !_ffmpegProcess.HasExited)
+                {
+                    _ffmpegProcess.Kill();
+                    _ffmpegProcess.WaitForExit(1000);
+                    _ffmpegProcess.Dispose();
+                    _ffmpegProcess = null;
+                    AddLog("✅ FFmpeg остановлен");
+                }
+
+                // Останавливаем MediaMTX
+                if (_rtspServerProcess != null && !_rtspServerProcess.HasExited)
+                {
+                    _rtspServerProcess.Kill();
+                    _rtspServerProcess.WaitForExit(1000);
+                    _rtspServerProcess.Dispose();
+                    _rtspServerProcess = null;
+                    AddLog("✅ MediaMTX остановлен");
+                }
+
+                // Останавливаем сервер управления
+                _inputListener?.Stop();
+                _inputThread?.Join(1000);
+
+                // Дополнительно убиваем все процессы по имени
+                foreach (var proc in Process.GetProcessesByName("mediamtx"))
+                {
+                    try { proc.Kill(); } catch { }
+                }
+
+                foreach (var proc in Process.GetProcessesByName("ffmpeg"))
+                {
+                    try { proc.Kill(); } catch { }
+                }
+
+                AddLog("✅ Сервер полностью остановлен");
+
+                Startbtn.IsEnabled = true;
+                Stopbtn.IsEnabled = false;
+                portBox.IsEnabled = true;
+            }
+            catch (Exception ex)
+            {
+                AddLog($"❌ Ошибка при остановке: {ex.Message}");
+            }
         }
 
         private void StartInputServer(int port)
@@ -126,11 +234,11 @@ namespace RemoteSystemWpf.Pages
                 });
                 _inputThread.Start();
 
-                AddLog($"Сервер управления запущен на порту {port}");
+                AddLog($"🖱️ Сервер управления запущен на порту {port}");
             }
             catch (Exception ex)
             {
-                AddLog($"Ошибка запуска сервера управления: {ex.Message}");
+                AddLog($"❌ Ошибка запуска сервера управления: {ex.Message}");
             }
         }
 
@@ -211,29 +319,6 @@ namespace RemoteSystemWpf.Pages
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка: {ex.Message}");
             }
-        }
-
-        private void Stop()
-        {
-            try
-            {
-                _isListening = false;
-
-                _ffmpegProcess?.Kill();
-                _ffmpegProcess?.Dispose();
-                _rtspServerProcess?.Kill();
-                _rtspServerProcess?.Dispose();
-
-                _inputListener?.Stop();
-                _inputThread?.Join(1000);
-
-                AddLog("Трансляция остановлена");
-
-                Startbtn.IsEnabled = true;
-                Stopbtn.IsEnabled = false;
-                portBox.IsEnabled = true;
-            }
-            catch { }
         }
 
         private void Page_Unloaded(object sender, System.Windows.RoutedEventArgs e)

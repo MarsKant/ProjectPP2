@@ -21,8 +21,10 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <!-- Звездочка важна! -->
             </Grid.RowDefinitions>
 
+            <!-- Панель подключения -->
             <Border Grid.Row="0"
                     Background="#CCFFFFFF"
                     BorderBrush="Black" 
@@ -97,18 +99,22 @@
                 </StackPanel>
             </Border>
 
+            <!-- Контейнер для видео и оверлея -->
             <Border Grid.Row="1"
                     Background="Black"
                     BorderBrush="Black" 
                     BorderThickness="2"
-                    CornerRadius="8">
+                    CornerRadius="8"
+                    Height="Auto"
+                    VerticalAlignment="Stretch">
 
                 <Grid>
+                    <!-- VideoView на заднем плане -->
                     <vlc:VideoView x:Name="VideoView" 
                                    HorizontalAlignment="Stretch" 
                                    VerticalAlignment="Stretch"/>
 
-                    <!-- Прозрачный оверлей для захвата ввода -->
+                    <!-- Оверлей поверх VideoView -->
                     <Rectangle x:Name="InputOverlay"
                                Fill="Transparent"
                                MouseMove="InputOverlay_MouseMove"
@@ -117,8 +123,11 @@
                                MouseWheel="InputOverlay_MouseWheel"
                                KeyDown="InputOverlay_KeyDown"
                                KeyUp="InputOverlay_KeyUp"
+                               GotFocus="InputOverlay_GotFocus"
                                Focusable="True"
-                               IsHitTestVisible="True"/>
+                               IsHitTestVisible="True"
+                               HorizontalAlignment="Stretch"
+                               VerticalAlignment="Stretch"/>
                 </Grid>
             </Border>
         </Grid>
