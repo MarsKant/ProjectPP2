@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Runtime.InteropServices;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace RemoteSystemWpf.Pages
 {
@@ -43,62 +44,59 @@ namespace RemoteSystemWpf.Pages
             {
                 AddLog("[SYSTEM] Очистка процессов...");
                 KillZombieProcesses();
-                Stop(); // Сброс локальных переменных
 
-                if (!int.TryParse(portBox.Text, out int cmdPort)) cmdPort = 8889;
-                int videoPort = 8554; // MediaMTX по умолчанию использует 8554
+                // Считываем порт из интерфейса ОДИН РАЗ
+                if (!int.TryParse(portBox.Text, out int cmdPort)) cmdPort = 8890;
+                int videoPort = 8554;
 
                 string baseDir = AppDomain.CurrentDomain.BaseDirectory;
                 string mtxPath = Path.Combine(baseDir, "MediaMTX", "mediamtx.exe");
                 string ffmpegPath = Path.Combine(baseDir, "ffmpeg", "ffmpeg.exe");
 
-                // 1. Запуск MediaMTX
-                AddLog("[DEBUG] Запуск MediaMTX...");
-                _rtspServer = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = mtxPath,
-                        WorkingDirectory = Path.GetDirectoryName(mtxPath),
-                        CreateNoWindow = true,
-                        UseShellExecute = false
-                    }
-                };
+                // 1. MediaMTX
+                _rtspServer = new Process { /* ... твои настройки ... */ };
+                _rtspServer.StartInfo.FileName = mtxPath;
                 _rtspServer.Start();
-                Thread.Sleep(2000); // Ждем инициализации сети
+                Thread.Sleep(1000);
 
-                // 2. Запуск FFmpeg
-                AddLog("[DEBUG] Запуск FFmpeg...");
-                // Параметр -rtsp_transport tcp обязателен для стабильности
+                // 2. FFmpeg
                 string args = $"-f gdigrab -framerate 30 -i desktop -c:v libx264 -preset ultrafast -tune zerolatency -b:v 3M -rtsp_transport tcp -f rtsp rtsp://127.0.0.1:{videoPort}/stream";
-                _ffmpeg = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = ffmpegPath,
-                        Arguments = args,
-                        CreateNoWindow = true,
-                        UseShellExecute = false
-                    }
-                };
+                _ffmpeg = new Process { /* ... твои настройки ... */ };
+                _ffmpeg.StartInfo.FileName = ffmpegPath;
+                _ffmpeg.StartInfo.Arguments = args;
                 _ffmpeg.Start();
 
-                // 3. Запуск сервера команд
+                // 3. Сервер команд (Исправлено)
                 _isListening = true;
-                _listener = new TcpListener(IPAddress.Any, cmdPort);
+                _listener = new TcpListener(IPAddress.Any, cmdPort); // Используем cmdPort
                 _listener.Start();
 
-                _cts = new CancellationTokenSource();
-                new Thread(ListenForClients).Start();
+                // Запускаем только цикл прослушивания, БЕЗ пересоздания listener
+                new Thread(AcceptClientsLoop).Start();
 
-                AddLog($"[OK] Сервер активен. Команды: {cmdPort}, Видео: {videoPort}");
+                AddLog($"[OK] Сервер активен. Порт: {cmdPort}");
                 Startbtn.IsEnabled = false;
                 Stopbtn.IsEnabled = true;
             }
+            catch (Exception ex) { AddLog($"[ERROR] {ex.Message}"); }
+        }
+
+        // Новый чистый метод для потока
+        private void AcceptClientsLoop()
+        {
+            try
+            {
+                while (_isListening)
+                {
+                    // AcceptTcpClient блокирует поток, пока кто-то не подключится
+                    var client = _listener.AcceptTcpClient();
+                    Task.Run(() => HandleClient(client));
+                }
+            }
             catch (Exception ex)
             {
-                AddLog($"[ERROR] {ex.Message}");
-                KillZombieProcesses();
+                if (_isListening) // Показываем ошибку, только если мы не сами остановили сервер
+                    Dispatcher.Invoke(() => AddLog("Сеть остановлена: " + ex.Message));
             }
         }
 
@@ -106,43 +104,45 @@ namespace RemoteSystemWpf.Pages
         {
             try
             {
-                _listener = new TcpListener(IPAddress.Any, 8889); // Жестко задай порт для теста
+                _listener = new TcpListener(IPAddress.Any, 8890); // Новый порт
                 _listener.Start();
-                AddLog("[OK] Сервер команд запущен на порту 8889");
 
                 while (_isListening)
                 {
-                    TcpClient client = _listener.AcceptTcpClient();
-                    AddLog("[NET] Клиент управления подключен!");
-                    Thread clientThread = new Thread(() => HandleClient(client));
-                    clientThread.IsBackground = true; // Важно, чтобы поток не вешал приложение
-                    clientThread.Start();
+                    var client = _listener.AcceptTcpClient();
+                    // Запускаем в Task, чтобы не вешать цикл
+                    Task.Run(() => HandleClient(client));
                 }
             }
             catch (Exception ex)
             {
-                AddLog($"[КРИТ] Ошибка сервера команд: {ex.Message}");
+                Dispatcher.Invoke(() => AddLog("Ошибка сети: " + ex.Message));
             }
         }
 
         private void HandleClient(TcpClient client)
         {
             using (client)
-            using (var stream = client.GetStream())
-            using (var reader = new StreamReader(stream, Encoding.UTF8))
+            using (NetworkStream stream = client.GetStream())
             {
+                byte[] buffer = new byte[1024];
                 while (_isListening && client.Connected)
                 {
                     try
                     {
-                        string line = reader.ReadLine();
-                        if (line == null) break;
-                        ExecuteCommand(line);
+                        int bytesRead = stream.Read(buffer, 0, buffer.Length);
+                        if (bytesRead == 0) break;
+
+                        string data = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                        foreach (var cmd in data.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            // Выполняем команду
+                            ExecuteCommand(cmd);
+                        }
                     }
-                    catch { break; }
+                    catch { break; } // Мягкий выход при дисконнекте
                 }
             }
-            AddLog("[NET] Клиент отключен");
         }
 
         private void ExecuteCommand(string command)

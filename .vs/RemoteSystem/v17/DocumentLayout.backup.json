@@ -7,27 +7,27 @@
       "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\pages\\serverpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|d:\\remotesystem\\remotesystemwpf\\pages\\clientpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\pages\\clientpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|d:\\remotesystem\\remotesystemwpf\\pages\\clientpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\pages\\clientpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|d:\\remotesystem\\remotesystemwpf\\pages\\serverpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|D:\\RemoteSystem\\remotesystemwpf\\pages\\serverpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\pages\\serverpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|d:\\remotesystem\\remotesystemwpf\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|D:\\RemoteSystem\\remotesystemwpf\\pages\\clientpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\pages\\clientpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|D:\\RemoteSystem\\remotesystemwpf\\pages\\clientpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\pages\\clientpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|D:\\RemoteSystem\\remotesystemwpf\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|d:\\remotesystem\\remotesystemwpf\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|D:\\RemoteSystem\\remotesystemwpf\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|d:\\remotesystem\\remotesystemwpf\\pages\\selectionpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|D:\\RemoteSystem\\remotesystemwpf\\pages\\selectionpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6BA61488-C6F7-4582-AD75-20BBB437D0B9}|RemoteSystemWpf\\RemoteSystemWpf.csproj|solutionrelative:remotesystemwpf\\pages\\selectionpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -38,20 +38,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "ServerPage.xaml",
-              "DocumentMoniker": "D:\\RemoteSystem\\RemoteSystemWpf\\Pages\\ServerPage.xaml",
-              "RelativeDocumentMoniker": "RemoteSystemWpf\\Pages\\ServerPage.xaml",
-              "ToolTip": "D:\\RemoteSystem\\RemoteSystemWpf\\Pages\\ServerPage.xaml",
-              "RelativeToolTip": "RemoteSystemWpf\\Pages\\ServerPage.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-03-06T14:39:19.85Z",
-              "EditorCaption": ""
-            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -60,9 +48,21 @@
               "RelativeDocumentMoniker": "RemoteSystemWpf\\Pages\\ServerPage.xaml.cs",
               "ToolTip": "D:\\RemoteSystem\\RemoteSystemWpf\\Pages\\ServerPage.xaml.cs",
               "RelativeToolTip": "RemoteSystemWpf\\Pages\\ServerPage.xaml.cs",
-              "ViewState": "AgIAAF4AAAAAAAAAAAAqwG8AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAADwAAAAAAAAAAAAUwGQAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-06T14:02:10.363Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ServerPage.xaml",
+              "DocumentMoniker": "D:\\RemoteSystem\\RemoteSystemWpf\\Pages\\ServerPage.xaml",
+              "RelativeDocumentMoniker": "RemoteSystemWpf\\Pages\\ServerPage.xaml",
+              "ToolTip": "D:\\RemoteSystem\\RemoteSystemWpf\\Pages\\ServerPage.xaml",
+              "RelativeToolTip": "RemoteSystemWpf\\Pages\\ServerPage.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-03-06T14:39:19.85Z",
               "EditorCaption": ""
             },
             {
@@ -75,12 +75,11 @@
               "RelativeToolTip": "RemoteSystemWpf\\Pages\\SelectionPage.xaml.cs",
               "ViewState": "AgIAAAgAAAAAAAAAAAASwB4AAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-06T13:52:27.613Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-06T13:52:27.613Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "ClientPage.xaml",
               "DocumentMoniker": "D:\\RemoteSystem\\RemoteSystemWpf\\Pages\\ClientPage.xaml",
               "RelativeDocumentMoniker": "RemoteSystemWpf\\Pages\\ClientPage.xaml",
@@ -92,13 +91,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "ClientPage.xaml.cs",
               "DocumentMoniker": "D:\\RemoteSystem\\RemoteSystemWpf\\Pages\\ClientPage.xaml.cs",
               "RelativeDocumentMoniker": "RemoteSystemWpf\\Pages\\ClientPage.xaml.cs",
               "ToolTip": "D:\\RemoteSystem\\RemoteSystemWpf\\Pages\\ClientPage.xaml.cs",
               "RelativeToolTip": "RemoteSystemWpf\\Pages\\ClientPage.xaml.cs",
-              "ViewState": "AgIAAGoAAAAAAAAAAAAUwIwAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAABsAAAAAAAAAAAAUwB8AAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-06T13:50:46.019Z",
               "EditorCaption": ""
@@ -113,8 +112,7 @@
               "RelativeToolTip": "RemoteSystemWpf\\MainWindow.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-06T13:51:09.751Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-06T13:51:09.751Z"
             },
             {
               "$type": "Document",
@@ -126,8 +124,7 @@
               "RelativeToolTip": "RemoteSystemWpf\\App.xaml.cs",
               "ViewState": "AgIAACsAAAAAAAAAAAAiwFQAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-06T13:50:31.568Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-06T13:50:31.568Z"
             }
           ]
         }

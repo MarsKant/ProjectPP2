@@ -30,6 +30,8 @@ D:\RemoteSystem\RemoteSystemWpf\obj\x64\Debug\RemoteSystemWpf.csproj.CoreCompile
 D:\RemoteSystem\RemoteSystemWpf\obj\x64\Debug\RemoteSy.8E2BFEAF.Up2Date
 D:\RemoteSystem\RemoteSystemWpf\obj\x64\Debug\RemoteSystemWpf.exe
 D:\RemoteSystem\RemoteSystemWpf\obj\x64\Debug\RemoteSystemWpf.pdb
+D:\RemoteSystem\RemoteSystemWpf\obj\x64\Debug\Pages\SelectionPage.baml
+D:\RemoteSystem\RemoteSystemWpf\obj\x64\Debug\Pages\SelectionPage.g.cs
 D:\RemoteSystem\RemoteSystemWpf\bin\x64\Debug\libvlc\win-x64\libvlc.dll
 D:\RemoteSystem\RemoteSystemWpf\bin\x64\Debug\libvlc\win-x64\libvlc.lib
 D:\RemoteSystem\RemoteSystemWpf\bin\x64\Debug\libvlc\win-x64\libvlccore.dll
@@ -591,5 +593,3 @@ D:\RemoteSystem\RemoteSystemWpf\bin\x64\Debug\libvlc\win-x64\plugins\visualizati
 D:\RemoteSystem\RemoteSystemWpf\bin\x64\Debug\libvlc\win-x64\plugins\visualization\libprojectm_plugin.dll
 D:\RemoteSystem\RemoteSystemWpf\bin\x64\Debug\libvlc\win-x64\plugins\visualization\libvisual_plugin.dll
 D:\RemoteSystem\RemoteSystemWpf\obj\x64\Debug\RemoteSystemWpf_Content.g.cs
-D:\RemoteSystem\RemoteSystemWpf\obj\x64\Debug\Pages\SelectionPage.baml
-D:\RemoteSystem\RemoteSystemWpf\obj\x64\Debug\Pages\SelectionPage.g.cs

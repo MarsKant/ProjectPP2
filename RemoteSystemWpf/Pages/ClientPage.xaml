@@ -9,7 +9,7 @@
       Title="Клиент удаленного доступа"
       Unloaded="Page_Unloaded">
 
-    <Grid>
+    <Grid x:Name="MainRoot">
         <Grid x:Name="BackgroundLayer">
             <Grid.Background>
                 <ImageBrush ImageSource="pack://application:,,,/RemoteSystemWpf;component/Images/DefaultBackground.jpg" 
