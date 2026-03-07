@@ -51,21 +51,22 @@
             </Border>
 
             <Border x:Name="VideoContainer" Grid.Row="1" Background="Black" CornerRadius="8" Margin="15,0,15,15">
-                <Grid x:Name="VideoGrid" Grid.Row="1" Margin="0">
+                <Grid x:Name="VideoGrid">
                     <vlc:VideoView x:Name="VideoView_Display" />
 
                     <Popup x:Name="InputPopup" 
-                        PlacementTarget="{Binding ElementName=VideoView_Display}" 
-                        Placement="Center"
-                        IsOpen="True" 
-                        AllowsTransparency="True">
+                           PlacementTarget="{Binding ElementName=VideoView_Display}" 
+                           Placement="Center"
+                           StaysOpen="True"
+                           AllowsTransparency="True"
+                           Focusable="False">
                         <Border x:Name="VideoView_Commands" 
-                        Background="#01000000" 
-                        Width="{Binding ElementName=VideoView_Display, Path=ActualWidth}"
-                        Height="{Binding ElementName=VideoView_Display, Path=ActualHeight}"
-                        MouseDown="InputOverlay_MouseDown"
-                        MouseMove="InputOverlay_MouseMove"
-                        MouseUp="InputOverlay_MouseUp"/>
+                                Background="#01000000"
+                                MouseDown="InputOverlay_MouseDown"
+                                MouseMove="InputOverlay_MouseMove"
+                                MouseUp="InputOverlay_MouseUp"
+                                MouseWheel="InputOverlay_MouseWheel"
+                                Focusable="True"/>
                     </Popup>
                 </Grid>
             </Border>

@@ -114,9 +114,25 @@ namespace RemoteSystemWpf.Pages
             using (client)
             using (NetworkStream stream = client.GetStream())
             {
+                try
+                {
+                    int screenWidth = (int)SystemParameters.PrimaryScreenWidth;
+                    int screenHeight = (int)SystemParameters.PrimaryScreenHeight;
+
+                    string sizeMsg = $"SIZE|{screenWidth}|{screenHeight}";
+                    byte[] sizeData = Encoding.UTF8.GetBytes(sizeMsg);
+                    stream.Write(sizeData, 0, sizeData.Length);
+
+                    AddLog($"[NET] Клиент подключен. Передано разрешение: {screenWidth}x{screenHeight}");
+                }
+                catch (Exception ex)
+                {
+                    AddLog($"[ERROR] Не удалось отправить SIZE: {ex.Message}");
+                }
                 byte[] buffer = new byte[1024];
                 while (_isListening && client.Connected)
                 {
+                    // Твой существующий код чтения команд
                     try
                     {
                         int bytesRead = stream.Read(buffer, 0, buffer.Length);
@@ -125,11 +141,10 @@ namespace RemoteSystemWpf.Pages
                         string data = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                         foreach (var cmd in data.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            // Выполняем команду
                             ExecuteCommand(cmd);
                         }
                     }
-                    catch { break; } // Мягкий выход при дисконнекте
+                    catch { break; }
                 }
             }
         }
