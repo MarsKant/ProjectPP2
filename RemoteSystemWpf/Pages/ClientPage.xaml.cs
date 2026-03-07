@@ -4,7 +4,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Threading.Tasks;
+using System.Windows.Media;
 using LibVLCSharp.Shared;
 
 namespace RemoteSystemWpf.Pages
@@ -12,17 +12,23 @@ namespace RemoteSystemWpf.Pages
     public partial class ClientPage : Page
     {
         private LibVLC _libVLC;
-        private MediaPlayer _mediaPlayer;
+        private LibVLCSharp.Shared.MediaPlayer _displayPlayer;
         private TcpClient _tcpClient;
         private NetworkStream _stream;
-        private bool _isFullScreen = false;
+        private bool _isFullscreen = false;
 
         public ClientPage()
         {
             InitializeComponent();
-            _libVLC = new LibVLC("--rtsp-tcp", "--network-caching=300");
-            _mediaPlayer = new MediaPlayer(_libVLC);
-            VideoView.MediaPlayer = _mediaPlayer;
+            _libVLC = new LibVLC();
+            _displayPlayer = new LibVLCSharp.Shared.MediaPlayer(_libVLC);
+
+            // Привязываем плеер только к нижнему слою отображения
+            VideoView_Display.MediaPlayer = _displayPlayer;
+
+            // Подписываемся на события клавиатуры всей страницы
+            this.KeyDown += InputOverlay_KeyDown;
+            this.KeyUp += InputOverlay_KeyUp;
         }
 
         private async void Connect(object sender, RoutedEventArgs e)
@@ -30,46 +36,30 @@ namespace RemoteSystemWpf.Pages
             try
             {
                 string ip = IpBox.Text;
-
-                // ЖЕСТКО РАЗДЕЛЯЕМ ПОРТЫ:
-                int cmdPort = 8890;   // Команды всегда идут сюда
-                int videoPort = 8554; // Видео всегда идет отсюда
-
                 _tcpClient = new TcpClient();
+                await _tcpClient.ConnectAsync(ip, 8890); // Порт команд
+                _stream = _tcpClient.GetStream();
 
-                // 1. Подключаем управление (к порту 8890)
-                var connectTask = _tcpClient.ConnectAsync(ip, cmdPort);
+                string rtspUrl = $"rtsp://{ip}:{PortBox.Text}/stream";
+                var media = new Media(_libVLC, new Uri(rtspUrl));
 
-                if (await Task.WhenAny(connectTask, Task.Delay(3000)) == connectTask)
-                {
-                    await connectTask;
-                    _stream = _tcpClient.GetStream();
+                // Опции для минимизации задержки и отключения захвата мыши самим VLC
+                media.AddOption(":no-mouse-events");
+                media.AddOption(":no-keyboard-events");
+                media.AddOption(":rtsp-transport=tcp");
+                media.AddOption(":network-caching=100");
 
-                    ConnectBtn.IsEnabled = false;
-                    DisconnectBtn.IsEnabled = true;
+                _displayPlayer.Play(media);
 
-                    // 2. Ждем 1.5 секунды, пока FFmpeg на сервере "разогреется"
-                    await Task.Delay(1500);
+                ConnectBtn.IsEnabled = false;
+                DisconnectBtn.IsEnabled = true;
 
-                    // 3. Запуск видео потока (с порта 8554)
-                    string rtspUrl = $"rtsp://{ip}:{videoPort}/stream";
-                    var media = new Media(_libVLC, new Uri(rtspUrl));
-                    media.AddOption(":rtsp-transport=tcp");
-                    media.AddOption(":network-caching=200");
-                    _mediaPlayer.Play(media);
-
-                    // 4. Возвращаем фокус нашему прозрачному слою, 
-                    // иначе клавиатура не будет работать (VLC забирает фокус себе)
-                    InputOverlay.Focus();
-                }
-                else
-                {
-                    MessageBox.Show($"Сервер управления (порт {cmdPort}) не отвечает.");
-                }
+                // Переводим фокус на слой команд, чтобы сразу ловить мышь и кнопки
+                VideoView_Commands.Focus();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка подключения: " + ex.Message);
+                MessageBox.Show($"Ошибка подключения: {ex.Message}");
             }
         }
 
@@ -84,106 +74,123 @@ namespace RemoteSystemWpf.Pages
             catch { }
         }
 
-        // --- УПРАВЛЕНИЕ ---
+        private void Disconnect(object sender, RoutedEventArgs e)
+        {
+            _displayPlayer?.Stop();
+            _tcpClient?.Close();
+            _stream = null;
+            ConnectBtn.IsEnabled = true;
+            DisconnectBtn.IsEnabled = false;
+
+            if (_isFullscreen) ToggleFullscreen();
+        }
+
+        private void InputOverlay_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            // КРИТИЧЕСКИ ВАЖНО: Захватываем мышь на наш Border
+            // Это заставляет WPF игнорировать нативное окно VLC под ним
+            VideoView_Commands.CaptureMouse();
+            VideoView_Commands.Focus();
+
+            string btn = e.ChangedButton == MouseButton.Left ? "LEFT" : "RIGHT";
+            SendCommand($"MOUSE_DOWN|{btn}");
+        }
 
         private void InputOverlay_MouseMove(object sender, MouseEventArgs e)
         {
-            if (_stream == null) return;
+            // Если мышь захвачена или просто двигается над нами
+            Point p = e.GetPosition(VideoView_Commands);
 
-            // Получаем позицию мыши относительно элемента InputOverlay
-            Point position = e.GetPosition(InputOverlay);
-
-            // ВАЖНО: Вместо передачи экранных координат окна, 
-            // мы вычисляем их относительно РЕАЛЬНОГО разрешения сервера.
-            // Если на сервере экран 1920x1080, укажи эти цифры:
             double serverWidth = 1920;
             double serverHeight = 1080;
 
-            // Вычисляем коэффициент (на сколько нужно умножить координату)
-            double xCoord = (position.X / InputOverlay.ActualWidth) * serverWidth;
-            double yCoord = (position.Y / InputOverlay.ActualHeight) * serverHeight;
+            if (VideoView_Commands.ActualWidth > 0 && VideoView_Commands.ActualHeight > 0)
+            {
+                int x = (int)(p.X * serverWidth / VideoView_Commands.ActualWidth);
+                int y = (int)(p.Y * serverHeight / VideoView_Commands.ActualHeight);
 
-            // Ограничиваем, чтобы не вылетало за границы
-            int finalX = (int)Math.Max(0, Math.Min(serverWidth, xCoord));
-            int finalY = (int)Math.Max(0, Math.Min(serverHeight, yCoord));
+                x = Math.Max(0, Math.Min((int)serverWidth, x));
+                y = Math.Max(0, Math.Min((int)serverHeight, y));
 
-            SendCommand($"MOUSE_MOVE|{finalX}|{finalY}");
+                SendCommand($"MOUSE_MOVE|{x}|{y}");
+            }
         }
 
-        private void InputOverlay_MouseDown(object sender, MouseButtonEventArgs e) =>
-            SendCommand($"MOUSE_DOWN|{(e.LeftButton == MouseButtonState.Pressed ? 0 : 1)}");
+        private void InputOverlay_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            // ОТПУСКАЕМ захват мыши, когда кнопка отжата
+            if (VideoView_Commands.IsMouseCaptured)
+            {
+                VideoView_Commands.ReleaseMouseCapture();
+            }
 
-        private void InputOverlay_MouseUp(object sender, MouseButtonEventArgs e) =>
-            SendCommand($"MOUSE_UP|{(e.LeftButton == MouseButtonState.Released ? 0 : 1)}");
+            string btn = e.ChangedButton == MouseButton.Left ? "LEFT" : "RIGHT";
+            SendCommand($"MOUSE_UP|{btn}");
+        }
 
-        private void InputOverlay_MouseWheel(object sender, MouseWheelEventArgs e) =>
+        private void InputOverlay_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
             SendCommand($"MOUSE_WHEEL|{e.Delta}");
+        }
 
         private void InputOverlay_KeyDown(object sender, KeyEventArgs e)
         {
-            // Обработка F11 для Fullscreen
             if (e.Key == Key.F11)
             {
-                ToggleFullScreen();
+                ToggleFullscreen();
                 e.Handled = true;
                 return;
             }
-
-            SendCommand($"KEY_DOWN|{(int)KeyInterop.VirtualKeyFromKey(e.Key)}");
+            SendCommand($"KEY_DOWN|{(int)e.Key}");
+            e.Handled = true;
         }
 
-        private void InputOverlay_KeyUp(object sender, KeyEventArgs e) =>
-            SendCommand($"KEY_UP|{(int)KeyInterop.VirtualKeyFromKey(e.Key)}");
-
-        private void InputOverlay_GotFocus(object sender, RoutedEventArgs e)
+        private void InputOverlay_KeyUp(object sender, KeyEventArgs e)
         {
-            // Визуально можно подсветить рамку, чтобы понять, что ввод активен
-            VideoContainer.BorderBrush = System.Windows.Media.Brushes.Orange;
+            SendCommand($"KEY_UP|{(int)e.Key}");
+            e.Handled = true;
         }
 
-        // --- РЕЖИМ ВО ВЕСЬ ЭКРАН ---
-        private void ToggleFullScreen()
+        // --- ЛОГИКА ПОЛНОЭКРАННОГО РЕЖИМА ---
+        private void ToggleFullscreen()
         {
-            var window = Window.GetWindow(this);
-            if (window == null) return;
+            Window win = Window.GetWindow(this);
+            if (win == null) return;
 
-            if (!_isFullScreen)
+            if (!_isFullscreen)
             {
-                // 1. Прячем лишнее на странице
                 ConnectionPanel.Visibility = Visibility.Collapsed;
+                BackgroundLayer.Visibility = Visibility.Collapsed;
+
+                // Убираем отступы контейнера, чтобы видео было на весь экран
                 VideoContainer.Margin = new Thickness(0);
+                VideoContainer.CornerRadius = new CornerRadius(0);
 
-                // 2. Растягиваем окно на весь монитор
-                window.WindowStyle = WindowStyle.None;
-                window.Topmost = true;
-                window.WindowState = WindowState.Maximized;
-
-                _isFullScreen = true;
+                win.WindowStyle = WindowStyle.None;
+                win.WindowState = WindowState.Maximized;
+                _isFullscreen = true;
             }
             else
             {
-                // Возвращаем интерфейс
                 ConnectionPanel.Visibility = Visibility.Visible;
-                VideoContainer.Margin = new Thickness(15);
+                BackgroundLayer.Visibility = Visibility.Visible;
 
-                window.WindowStyle = WindowStyle.SingleBorderWindow;
-                window.Topmost = false;
-                window.WindowState = WindowState.Normal;
+                // Возвращаем отступы
+                VideoContainer.Margin = new Thickness(15, 0, 15, 15);
+                VideoContainer.CornerRadius = new CornerRadius(8);
 
-                _isFullScreen = false;
+                win.WindowStyle = WindowStyle.SingleBorderWindow;
+                win.WindowState = WindowState.Normal;
+                _isFullscreen = false;
             }
+            VideoView_Commands.Focus();
         }
 
-        private void Disconnect(object sender, RoutedEventArgs e)
+        private void Page_Unloaded(object sender, RoutedEventArgs e)
         {
-            _mediaPlayer?.Stop();
-            _stream?.Close();
-            _tcpClient?.Close();
-            ConnectBtn.IsEnabled = true;
-            DisconnectBtn.IsEnabled = false;
-            VideoContainer.BorderBrush = System.Windows.Media.Brushes.Black;
+            Disconnect(null, null);
+            _displayPlayer?.Dispose();
+            _libVLC?.Dispose();
         }
-
-        private void Page_Unloaded(object sender, RoutedEventArgs e) => Disconnect(null, null);
     }
 }

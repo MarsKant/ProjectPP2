@@ -7,7 +7,8 @@
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="Клиент удаленного доступа"
-      Unloaded="Page_Unloaded">
+      Unloaded="Page_Unloaded"
+      Focusable="True">
 
     <Grid x:Name="MainRoot">
         <Grid x:Name="BackgroundLayer">
@@ -20,111 +21,52 @@
 
         <Grid VerticalAlignment="Stretch">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition x:Name="RowTop" Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Border x:Name="ConnectionPanel" 
-                    Grid.Row="0"
-                    Background="#CCFFFFFF"
-                    BorderBrush="Black" 
-                    BorderThickness="1.5"
-                    CornerRadius="6"
-                    Padding="10"
-                    Margin="15,15,15,10">
+            <Border x:Name="ConnectionPanel" Grid.Row="0" Background="#CCFFFFFF" BorderBrush="Black" BorderThickness="1.5" CornerRadius="6" Padding="10" Margin="15,15,15,10">
                 <StackPanel>
                     <Grid Margin="0,0,0,5">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="70"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Column="0" 
-                                   Text="IP сервера:" 
-                                   FontSize="14"
-                                   VerticalAlignment="Center"/>
-                        <TextBox Grid.Column="1" 
-                                 x:Name="IpBox" 
-                                 Text="127.0.0.1" 
-                                 Height="28"
-                                 FontSize="13"
-                                 Padding="4"
-                                 Background="White"/>
+                        <TextBlock Text="IP сервера:" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1" x:Name="IpBox" Text="127.0.0.1" Height="28"/>
                     </Grid>
-
                     <Grid Margin="0,0,0,5">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="70"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Column="0" 
-                                   Text="Порт:" 
-                                   FontSize="14"
-                                   VerticalAlignment="Center"/>
-                        <TextBox Grid.Column="1" 
-                                 x:Name="PortBox" 
-                                 Text="8554" 
-                                 Height="28"
-                                 FontSize="13"
-                                 Padding="4"
-                                 Background="White"/>
+                        <TextBlock Text="Порт:" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1" x:Name="PortBox" Text="8554" Height="28"/>
                     </Grid>
-
-                    <Grid Margin="0,5,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Button Grid.Column="0" 
-                                x:Name="ConnectBtn" 
-                                Content="Подключиться" 
-                                Click="Connect"
-                                Height="30" 
-                                Background="#F5DEB3"
-                                FontWeight="SemiBold"/>
-
-                        <Button Grid.Column="2" 
-                                x:Name="DisconnectBtn" 
-                                Content="Отключиться" 
-                                Click="Disconnect"
-                                Height="30" 
-                                Background="#F5B3B3"
-                                FontWeight="SemiBold"
-                                IsEnabled="False"/>
-                    </Grid>
+                    <UniformGrid Columns="2" Margin="0,5,0,0">
+                        <Button x:Name="ConnectBtn" Content="Подключиться" Click="Connect" Height="30" Margin="0,0,5,0"/>
+                        <Button x:Name="DisconnectBtn" Content="Отключиться" Click="Disconnect" Height="30" Margin="5,0,0,0" IsEnabled="False"/>
+                    </UniformGrid>
                 </StackPanel>
             </Border>
 
-            <Border x:Name="VideoContainer"
-                    Grid.Row="1"
-                    Background="Black"
-                    BorderBrush="Black" 
-                    BorderThickness="2"
-                    CornerRadius="8"
-                    Margin="15,0,15,15" 
-                    VerticalAlignment="Stretch">
+            <Border x:Name="VideoContainer" Grid.Row="1" Background="Black" CornerRadius="8" Margin="15,0,15,15">
+                <Grid x:Name="VideoGrid" Grid.Row="1" Margin="0">
+                    <vlc:VideoView x:Name="VideoView_Display" />
 
-                <Grid>
-                    <vlc:VideoView x:Name="VideoView" 
-                                   HorizontalAlignment="Stretch" 
-                                   VerticalAlignment="Stretch"/>
-
-                    <Rectangle x:Name="InputOverlay"
-                               Fill="Transparent"
-                               MouseMove="InputOverlay_MouseMove"
-                               MouseDown="InputOverlay_MouseDown"
-                               MouseUp="InputOverlay_MouseUp"
-                               MouseWheel="InputOverlay_MouseWheel"
-                               KeyDown="InputOverlay_KeyDown"
-                               KeyUp="InputOverlay_KeyUp"
-                               GotFocus="InputOverlay_GotFocus"
-                               Focusable="True"
-                               IsHitTestVisible="True"
-                               HorizontalAlignment="Stretch"
-                               VerticalAlignment="Stretch"/>
+                    <Popup x:Name="InputPopup" 
+                        PlacementTarget="{Binding ElementName=VideoView_Display}" 
+                        Placement="Center"
+                        IsOpen="True" 
+                        AllowsTransparency="True">
+                        <Border x:Name="VideoView_Commands" 
+                        Background="#01000000" 
+                        Width="{Binding ElementName=VideoView_Display, Path=ActualWidth}"
+                        Height="{Binding ElementName=VideoView_Display, Path=ActualHeight}"
+                        MouseDown="InputOverlay_MouseDown"
+                        MouseMove="InputOverlay_MouseMove"
+                        MouseUp="InputOverlay_MouseUp"/>
+                    </Popup>
                 </Grid>
             </Border>
         </Grid>

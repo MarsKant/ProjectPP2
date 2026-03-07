@@ -139,16 +139,39 @@ namespace RemoteSystemWpf.Pages
             try
             {
                 string[] p = command.Split('|');
+                if (p.Length < 2) return;
+
                 switch (p[0])
                 {
-                    case "MOUSE_MOVE": SetCursorPos(int.Parse(p[1]), int.Parse(p[2])); break;
-                    case "MOUSE_DOWN": mouse_event(p[1] == "0" ? 0x0002u : 0x0008u, 0, 0, 0, UIntPtr.Zero); break;
-                    case "MOUSE_UP": mouse_event(p[1] == "0" ? 0x0004u : 0x0010u, 0, 0, 0, UIntPtr.Zero); break;
-                    case "KEY_DOWN": keybd_event((byte)int.Parse(p[1]), 0, 0, UIntPtr.Zero); break;
-                    case "KEY_UP": keybd_event((byte)int.Parse(p[1]), 0, 0x0002u, UIntPtr.Zero); break;
+                    case "MOUSE_MOVE":
+                        SetCursorPos(int.Parse(p[1]), int.Parse(p[2]));
+                        break;
+
+                    case "MOUSE_DOWN":
+                        // Проверяем на "LEFT" или "0" для совместимости
+                        uint downFlag = (p[1] == "LEFT" || p[1] == "0") ? 0x0002u : 0x0008u;
+                        mouse_event(downFlag, 0, 0, 0, UIntPtr.Zero);
+                        break;
+
+                    case "MOUSE_UP":
+                        uint upFlag = (p[1] == "LEFT" || p[1] == "0") ? 0x0004u : 0x0010u;
+                        mouse_event(upFlag, 0, 0, 0, UIntPtr.Zero);
+                        break;
+
+                    case "KEY_DOWN":
+                        keybd_event((byte)int.Parse(p[1]), 0, 0, UIntPtr.Zero);
+                        break;
+
+                    case "KEY_UP":
+                        keybd_event((byte)int.Parse(p[1]), 0, 0x0002u, UIntPtr.Zero);
+                        break;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // Добавьте лог, чтобы видеть ошибки парсинга
+                Dispatcher.Invoke(() => AddLog("[CMD ERROR] " + ex.Message));
+            }
         }
 
         private void Stop()
