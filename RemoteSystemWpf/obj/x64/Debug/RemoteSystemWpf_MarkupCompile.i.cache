@@ -4,16 +4,16 @@
 winexe
 C#
 .cs
-D:\RemoteSystem\RemoteSystemWpf\obj\x64\Debug\
+C:\Users\gigpr\OneDrive\Desktop\RemoteSystem\ProjectPP2\RemoteSystemWpf\obj\x64\Debug\
 RemoteSystemWpf
 none
 false
 DEBUG;TRACE
-D:\RemoteSystem\RemoteSystemWpf\App.xaml
+C:\Users\gigpr\OneDrive\Desktop\RemoteSystem\ProjectPP2\RemoteSystemWpf\App.xaml
 41486319850
 
 101135400244
-129655650270
+1292003000570
 MainWindow.xaml;Pages\ClientPage.xaml;Pages\SelectionPage.xaml;Pages\ServerPage.xaml;
 
 True

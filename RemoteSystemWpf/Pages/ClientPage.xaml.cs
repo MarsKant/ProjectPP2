@@ -30,37 +30,46 @@ namespace RemoteSystemWpf.Pages
             try
             {
                 string ip = IpBox.Text;
-                if (!int.TryParse(PortBox.Text, out int port)) port = 8890;
+
+                // ЖЕСТКО РАЗДЕЛЯЕМ ПОРТЫ:
+                int cmdPort = 8890;   // Команды всегда идут сюда
+                int videoPort = 8554; // Видео всегда идет отсюда
 
                 _tcpClient = new TcpClient();
 
-                // Попытка подключения к серверу команд
-                var connectTask = _tcpClient.ConnectAsync(ip, port);
+                // 1. Подключаем управление (к порту 8890)
+                var connectTask = _tcpClient.ConnectAsync(ip, cmdPort);
 
-                // Ждем 3 секунды, если не вышло — отмена
                 if (await Task.WhenAny(connectTask, Task.Delay(3000)) == connectTask)
                 {
                     await connectTask;
                     _stream = _tcpClient.GetStream();
 
-                    // Запуск видео потока (обычно на 8554)
-                    string rtspUrl = $"rtsp://{ip}:8554/stream";
-                    var media = new Media(_libVLC, new Uri(rtspUrl));
-                    media.AddOption(":rtsp-transport=tcp");
-                    _mediaPlayer.Play(media);
-
                     ConnectBtn.IsEnabled = false;
                     DisconnectBtn.IsEnabled = true;
-                    InputOverlay.Focus(); // Даем фокус для управления
+
+                    // 2. Ждем 1.5 секунды, пока FFmpeg на сервере "разогреется"
+                    await Task.Delay(1500);
+
+                    // 3. Запуск видео потока (с порта 8554)
+                    string rtspUrl = $"rtsp://{ip}:{videoPort}/stream";
+                    var media = new Media(_libVLC, new Uri(rtspUrl));
+                    media.AddOption(":rtsp-transport=tcp");
+                    media.AddOption(":network-caching=200");
+                    _mediaPlayer.Play(media);
+
+                    // 4. Возвращаем фокус нашему прозрачному слою, 
+                    // иначе клавиатура не будет работать (VLC забирает фокус себе)
+                    InputOverlay.Focus();
                 }
                 else
                 {
-                    MessageBox.Show($"Сервер на {ip}:{port} не отвечает.");
+                    MessageBox.Show($"Сервер управления (порт {cmdPort}) не отвечает.");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка сокета: " + ex.Message);
+                MessageBox.Show("Ошибка подключения: " + ex.Message);
             }
         }
 
@@ -79,11 +88,26 @@ namespace RemoteSystemWpf.Pages
 
         private void InputOverlay_MouseMove(object sender, MouseEventArgs e)
         {
-            Point p = e.GetPosition(InputOverlay);
-            // Масштабирование под стандарт 1920x1080 (замени на свое если нужно)
-            int x = (int)(p.X * (1920.0 / InputOverlay.ActualWidth));
-            int y = (int)(p.Y * (1080.0 / InputOverlay.ActualHeight));
-            SendCommand($"MOUSE_MOVE|{x}|{y}");
+            if (_stream == null) return;
+
+            // Получаем позицию мыши относительно элемента InputOverlay
+            Point position = e.GetPosition(InputOverlay);
+
+            // ВАЖНО: Вместо передачи экранных координат окна, 
+            // мы вычисляем их относительно РЕАЛЬНОГО разрешения сервера.
+            // Если на сервере экран 1920x1080, укажи эти цифры:
+            double serverWidth = 1920;
+            double serverHeight = 1080;
+
+            // Вычисляем коэффициент (на сколько нужно умножить координату)
+            double xCoord = (position.X / InputOverlay.ActualWidth) * serverWidth;
+            double yCoord = (position.Y / InputOverlay.ActualHeight) * serverHeight;
+
+            // Ограничиваем, чтобы не вылетало за границы
+            int finalX = (int)Math.Max(0, Math.Min(serverWidth, xCoord));
+            int finalY = (int)Math.Max(0, Math.Min(serverHeight, yCoord));
+
+            SendCommand($"MOUSE_MOVE|{finalX}|{finalY}");
         }
 
         private void InputOverlay_MouseDown(object sender, MouseButtonEventArgs e) =>
