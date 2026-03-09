@@ -3,6 +3,7 @@ using System.Windows;
 using RemoteSystemWpf.Helpers;
 using System.Threading.Tasks;
 using LibVLCSharp.Shared;
+using System.Diagnostics;
 
 namespace RemoteSystemWpf
 {
@@ -11,19 +12,23 @@ namespace RemoteSystemWpf
         protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            // Первым делом очищаем старые процессы, если они остались от прошлого запуска
+            KillZombieProcesses();
+
             Console.WriteLine("[DEBUG] Приложение OnStartup запущено.");
 
             AppDomain.CurrentDomain.UnhandledException += (s, ex) =>
                 MessageBox.Show($"Критическая ошибка: {ex.ExceptionObject}");
 
+            // Принудительная очистка при выходе из процесса
+            AppDomain.CurrentDomain.ProcessExit += (s, ev) => KillZombieProcesses();
+
             this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
-            // Инициализация VLC с параметрами против ошибок COM и аудио
             try
             {
                 Console.WriteLine("[DEBUG] Инициализация Core LibVLC...");
-                // Передаем параметры сразу при инициализации ядра, если возможно, 
-                // или гарантируем, что это произойдет один раз.
                 Core.Initialize();
             }
             catch (Exception ex)
@@ -61,7 +66,6 @@ namespace RemoteSystemWpf
 
             try
             {
-                // Эмуляция/проверка компонентов
                 await DownloadHelper.DownloadFFmpeg(progress);
                 await DownloadHelper.DownloadMediaMTX(progress);
                 await DownloadHelper.DownloadVLC(progress);
@@ -79,6 +83,35 @@ namespace RemoteSystemWpf
                 Console.WriteLine($"[FATAL] Ошибка загрузки: {ex}");
                 MessageBox.Show($"Ошибка при подготовке системы: {ex.Message}");
                 this.Shutdown();
+            }
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            KillZombieProcesses();
+            base.OnExit(e);
+        }
+
+        // Глобальный метод очистки
+        public static void KillZombieProcesses()
+        {
+            string[] engines = { "ffmpeg", "mediamtx" };
+
+            foreach (var name in engines)
+            {
+                try
+                {
+                    foreach (var p in Process.GetProcessesByName(name))
+                    {
+                        try
+                        {
+                            p.Kill();
+                            p.WaitForExit(500);
+                        }
+                        catch { }
+                    }
+                }
+                catch { }
             }
         }
     }

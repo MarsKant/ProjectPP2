@@ -19,31 +19,15 @@ namespace RemoteSystemWpf.Pages
         private Process _ffmpeg;
         private TcpListener _listener;
         private bool _isListening;
-        private CancellationTokenSource _cts;
 
         public ServerPage() => InitializeComponent();
-
-        // --- МЕТОД УБИЙЦА ЗОМБИ ---
-        private void KillZombieProcesses()
-        {
-            string[] engines = { "ffmpeg", "mediamtx" };
-
-            foreach (var name in engines)
-            {
-                foreach (var p in Process.GetProcessesByName(name))
-                {
-                    try { p.Kill(); p.WaitForExit(500); } catch { }
-                }
-            }
-            AddLog("[SYSTEM] Движки очищены.");
-        }
 
         private void Start_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                AddLog("[SYSTEM] Очистка процессов...");
-                KillZombieProcesses();
+                AddLog("[SYSTEM] Очистка процессов через App...");
+                App.KillZombieProcesses();
 
                 if (!int.TryParse(portBox.Text, out int cmdPort)) cmdPort = 8890;
                 int videoPort = 8554;
@@ -53,22 +37,28 @@ namespace RemoteSystemWpf.Pages
                 string mtxPath = Path.Combine(mtxDir, "mediamtx.exe");
                 string ffmpegPath = Path.Combine(baseDir, "ffmpeg", "ffmpeg.exe");
 
-                // НОВОЕ: Автоматически создаем конфиг, чтобы разрешить путь /stream
                 Directory.CreateDirectory(mtxDir);
-                File.WriteAllText(Path.Combine(mtxDir, "mediamtx.yml"), "paths:\n  all:\n");
+                string mtxConfig = "paths:\n  all:\n    source: publisher\n" +
+                                   "readBufferCount: 2048\n" +
+                                   "protocols: [tcp]\n" +
+                                   "rtspAddress: :8554\n";
+                File.WriteAllText(Path.Combine(mtxDir, "mediamtx.yml"), mtxConfig);
 
-                // 1. MediaMTX
                 _rtspServer = new Process();
                 _rtspServer.StartInfo.FileName = mtxPath;
-                _rtspServer.StartInfo.WorkingDirectory = mtxDir; // Важно, чтобы он увидел .yml
+                _rtspServer.StartInfo.WorkingDirectory = mtxDir;
                 _rtspServer.StartInfo.CreateNoWindow = true;
                 _rtspServer.StartInfo.UseShellExecute = false;
                 _rtspServer.Start();
 
-                Thread.Sleep(1000); // Ждем запуска сервера
+                Thread.Sleep(1000);
 
-                // 2. FFmpeg
-                string args = $"-f gdigrab -framerate 30 -i desktop -c:v libx264 -preset ultrafast -tune zerolatency -b:v 3M -rtsp_transport tcp -f rtsp rtsp://127.0.0.1:{videoPort}/stream";
+                string args = $"-f gdigrab -framerate 30 -i desktop " +
+                              $"-c:v libx264 -preset ultrafast -tune zerolatency " +
+                              $"-b:v 2500k -maxrate 2500k -bufsize 5000k -g 30 " +
+                              $"-pix_fmt yuv420p -max_muxing_queue_size 1024 " +
+                              $"-f rtsp -rtsp_transport tcp rtsp://127.0.0.1:{videoPort}/stream";
+
                 _ffmpeg = new Process();
                 _ffmpeg.StartInfo.FileName = ffmpegPath;
                 _ffmpeg.StartInfo.Arguments = args;
@@ -90,23 +80,17 @@ namespace RemoteSystemWpf.Pages
             catch (Exception ex) { AddLog($"[ERROR] {ex.Message}"); }
         }
 
-        // Новый чистый метод для потока
         private void AcceptClientsLoop()
         {
             try
             {
                 while (_isListening)
                 {
-                    // AcceptTcpClient блокирует поток, пока кто-то не подключится
                     var client = _listener.AcceptTcpClient();
                     Task.Run(() => HandleClient(client));
                 }
             }
-            catch (Exception ex)
-            {
-                if (_isListening) // Показываем ошибку, только если мы не сами остановили сервер
-                    Dispatcher.Invoke(() => AddLog("Сеть остановлена: " + ex.Message));
-            }
+            catch { if (_isListening) Dispatcher.Invoke(() => AddLog("Сеть остановлена.")); }
         }
 
         private void HandleClient(TcpClient client)
@@ -118,31 +102,24 @@ namespace RemoteSystemWpf.Pages
                 {
                     int screenWidth = (int)SystemParameters.PrimaryScreenWidth;
                     int screenHeight = (int)SystemParameters.PrimaryScreenHeight;
-
                     string sizeMsg = $"SIZE|{screenWidth}|{screenHeight}";
                     byte[] sizeData = Encoding.UTF8.GetBytes(sizeMsg);
                     stream.Write(sizeData, 0, sizeData.Length);
+                    AddLog($"[NET] Клиент подключен.");
+                }
+                catch { return; }
 
-                    AddLog($"[NET] Клиент подключен. Передано разрешение: {screenWidth}x{screenHeight}");
-                }
-                catch (Exception ex)
-                {
-                    AddLog($"[ERROR] Не удалось отправить SIZE: {ex.Message}");
-                }
-                byte[] buffer = new byte[1024];
+                byte[] buffer = new byte[2048];
                 while (_isListening && client.Connected)
                 {
-                    // Твой существующий код чтения команд
                     try
                     {
                         int bytesRead = stream.Read(buffer, 0, buffer.Length);
                         if (bytesRead == 0) break;
 
                         string data = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                        foreach (var cmd in data.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            ExecuteCommand(cmd);
-                        }
+                        string[] commands = data.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (var cmd in commands) ExecuteCommand(cmd);
                     }
                     catch { break; }
                 }
@@ -161,41 +138,43 @@ namespace RemoteSystemWpf.Pages
                     case "MOUSE_MOVE":
                         SetCursorPos(int.Parse(p[1]), int.Parse(p[2]));
                         break;
-
                     case "MOUSE_DOWN":
-                        // Проверяем на "LEFT" или "0" для совместимости
                         uint downFlag = (p[1] == "LEFT" || p[1] == "0") ? 0x0002u : 0x0008u;
                         mouse_event(downFlag, 0, 0, 0, UIntPtr.Zero);
                         break;
-
                     case "MOUSE_UP":
                         uint upFlag = (p[1] == "LEFT" || p[1] == "0") ? 0x0004u : 0x0010u;
                         mouse_event(upFlag, 0, 0, 0, UIntPtr.Zero);
                         break;
-
                     case "KEY_DOWN":
                         keybd_event((byte)int.Parse(p[1]), 0, 0, UIntPtr.Zero);
                         break;
-
                     case "KEY_UP":
                         keybd_event((byte)int.Parse(p[1]), 0, 0x0002u, UIntPtr.Zero);
                         break;
                 }
             }
-            catch (Exception ex)
-            {
-                // Добавьте лог, чтобы видеть ошибки парсинга
-                Dispatcher.Invoke(() => AddLog("[CMD ERROR] " + ex.Message));
-            }
+            catch { }
         }
 
         private void Stop()
         {
             _isListening = false;
-            _cts?.Cancel();
             _listener?.Stop();
-            try { _ffmpeg?.Kill(); _rtspServer?.Kill(); } catch { }
-            Dispatcher.Invoke(() => { Startbtn.IsEnabled = true; Stopbtn.IsEnabled = false; });
+            try
+            {
+                if (_ffmpeg != null && !_ffmpeg.HasExited) _ffmpeg.Kill();
+                if (_rtspServer != null && !_rtspServer.HasExited) _rtspServer.Kill();
+            }
+            catch { }
+
+            App.KillZombieProcesses();
+
+            Dispatcher.Invoke(() => {
+                Startbtn.IsEnabled = true;
+                Stopbtn.IsEnabled = false;
+                AddLog("[SYSTEM] Сервер остановлен.");
+            });
         }
 
         private void Stop_Click(object sender, RoutedEventArgs e) => Stop();
