@@ -146,6 +146,10 @@ namespace RemoteSystemWpf.Pages
                         uint upFlag = (p[1] == "LEFT" || p[1] == "0") ? 0x0004u : 0x0010u;
                         mouse_event(upFlag, 0, 0, 0, UIntPtr.Zero);
                         break;
+                    case "MOUSE_WHEEL":
+                        int wheelDelta = int.Parse(p[1]);
+                        mouse_event(0x0800, 0, 0, (uint)wheelDelta, UIntPtr.Zero);
+                        break;
                     case "KEY_DOWN":
                         keybd_event((byte)int.Parse(p[1]), 0, 0, UIntPtr.Zero);
                         break;

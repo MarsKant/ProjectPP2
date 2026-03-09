@@ -13,6 +13,7 @@
             <ImageBrush ImageSource="pack://application:,,,/RemoteSystemWpf;component/Images/DefaultBackground.jpg" 
                    Stretch="UniformToFill"/>
         </Grid.Background>
+        
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -42,27 +43,100 @@
                      VerticalContentAlignment="Center"
                      Background="#80FFFFFF"
                      Text="8554"/>
-
-            <Button x:Name="Startbtn" 
-                     Click="Start_Click" 
-                     Margin="40,0,0,10" 
-                     Background="#F5DEB3"  
+            <Border CornerRadius="10"
+                    BorderBrush="Black"
+                    BorderThickness="2"
+                    Background="#80FFFFFF" 
+                    Margin="40,0,0,10" 
+                    Width="150" 
+                    Height="30" 
+                    VerticalAlignment="Bottom" 
+                    HorizontalAlignment="Left" >
+                <Button x:Name="Startbtn" 
+                     Click="Start_Click"
+                     Background="Transparent" 
+                     BorderBrush="Transparent"
                      Content="Запустить" 
                      Width="150" 
-                     Height="30" 
-                     VerticalAlignment="Bottom" 
-                     HorizontalAlignment="Left"/>
-
-            <Button x:Name="Stopbtn" 
+                     Height="30"
+                     Margin="-2,-2,-2,-2"
+                     VerticalContentAlignment="Center" 
+                     HorizontalContentAlignment="Center">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}">
+                                            <ContentPresenter HorizontalAlignment="Center" 
+                              VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="Foreground" Value="Gray"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Border>
+            <Border CornerRadius="10"
+                BorderBrush="Black"
+                BorderThickness="2"
+                Background="#80FFFFFF" 
+                Margin="200,0,0,10" 
+                Width="150" 
+                Height="30" 
+                VerticalAlignment="Bottom" 
+                HorizontalAlignment="Left" >
+                <Button x:Name="Stopbtn" 
                      Click="Stop_Click" 
-                     Margin="200,0,0,10" 
-                     Background="#F5DEB3" 
                      IsEnabled="False"  
-                     Content="Остановить" 
+                     Content="Остановить"
                      Width="150" 
                      Height="30" 
-                     VerticalAlignment="Bottom" 
-                     HorizontalAlignment="Left"/>
+                     Margin="-2,-2,-2,-2"
+                     Background="Transparent" 
+                     BorderBrush="Transparent"
+                     VerticalContentAlignment="Center" 
+                     HorizontalContentAlignment="Center">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}">
+                                            <ContentPresenter HorizontalAlignment="Center" 
+                                                  VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="Foreground" Value="Gray"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Border>
         </Grid>
 
         <Border Grid.Column="1"

@@ -14,40 +14,118 @@
                 Stretch="UniformToFill"/>
         </Grid.Background>
 
-        <Rectangle Fill="#60000000"/>
+        <Rectangle Fill="#40000000"/>
 
-        <StackPanel x:Name="ChoicerPanel" VerticalAlignment="Center">
             <Label x:Name="MainLabel"
            Content="Выберите тип доступа"
            HorizontalAlignment="Center"
+           VerticalAlignment="Top"
            FontSize="40"
-           Foreground="#F5DEB3"
-           Margin="0,0,0,40"/>
+           FontWeight="Bold"
+           Foreground="Black"/>
 
-            <Grid x:Name="Choicer">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+        <Grid x:Name="Choicer">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-                <Button Grid.Column="0"
-                Content="Сервер"
-                Click="Server"
-                Height="100" Width="220"
-                FontSize="40"
-                Background="#F5DEB3"
-                FontWeight="SemiBold"
-                HorizontalAlignment="Center"/>
-
-                <Button Grid.Column="1"
-                Content="Клиент"
-                Click="Client"
-                Height="100" Width="220"
-                FontSize="40"
-                Background="#F5DEB3"
-                FontWeight="SemiBold"
-                HorizontalAlignment="Center"/>
-            </Grid>
-        </StackPanel>
+            <Border Grid.Column="0" Grid.Row="1"
+                CornerRadius="10"
+                BorderBrush="Black"
+                BorderThickness="2"
+                Background="#80FFFFFF" 
+                Height="100"
+                Width="220"
+                VerticalAlignment="Center">
+                <Button Grid.Column="0" Grid.Row="1"
+                    Content="Сервер"
+                    Click="Server"
+                    FontSize="40"
+                    Height="100"
+                    Width="220"
+                    Margin="-2,-2,-2,-2"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    FontWeight="SemiBold"
+                    VerticalAlignment="Center">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}">
+                                            <ContentPresenter HorizontalAlignment="Center" 
+                              VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="Foreground" Value="Gray"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Border>
+            <Border Grid.Column="1" Grid.Row="1"
+                CornerRadius="10"
+                BorderBrush="Black"
+                BorderThickness="2"
+                Background="#80FFFFFF" 
+                Height="100"
+                Width="220"
+                VerticalAlignment="Center">
+                <Button Grid.Column="1" Grid.Row="1"
+                    Content="Клиент"
+                    Click="Client"
+                    Height="100"
+                    Width="220"
+                    Margin="-2,-2,-2,-2"
+                    FontSize="40"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    FontWeight="SemiBold"
+                    VerticalAlignment="Center">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}">
+                                            <ContentPresenter HorizontalAlignment="Center" 
+                              VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="Foreground" Value="Gray"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Border>
+        </Grid>
     </Grid>
 </Page>

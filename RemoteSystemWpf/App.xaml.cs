@@ -2,7 +2,6 @@
 using System.Windows;
 using RemoteSystemWpf.Helpers;
 using System.Threading.Tasks;
-using LibVLCSharp.Shared;
 using System.Diagnostics;
 
 namespace RemoteSystemWpf
@@ -12,77 +11,63 @@ namespace RemoteSystemWpf
         protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
-            // Первым делом очищаем старые процессы, если они остались от прошлого запуска
             KillZombieProcesses();
 
-            Console.WriteLine("[DEBUG] Приложение OnStartup запущено.");
-
-            AppDomain.CurrentDomain.UnhandledException += (s, ex) =>
-                MessageBox.Show($"Критическая ошибка: {ex.ExceptionObject}");
-
-            // Принудительная очистка при выходе из процесса
-            AppDomain.CurrentDomain.ProcessExit += (s, ev) => KillZombieProcesses();
-
-            this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
-
-            try
+            // Создаем простой Splash-экран программно
+            var splash = new Window
             {
-                Console.WriteLine("[DEBUG] Инициализация Core LibVLC...");
-                Core.Initialize();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[ERROR] Ошибка инициализации VLC: {ex.Message}");
-            }
-
-            var splashWindow = new Window
-            {
-                Title = "Загрузка системы",
-                Width = 450,
-                Height = 220,
+                Title = "Загрузка ресурсов",
+                Width = 400,
+                Height = 180,
                 WindowStartupLocation = WindowStartupLocation.CenterScreen,
                 WindowStyle = WindowStyle.None,
                 Topmost = true
             };
 
-            var progressText = new System.Windows.Controls.TextBlock
+            var txt = new System.Windows.Controls.TextBlock
             {
-                Text = "Подготовка среды...",
-                Margin = new Thickness(20),
-                HorizontalAlignment = HorizontalAlignment.Center,
+                Text = "Проверка компонентов...",
+                Padding = new Thickness(20),
+                TextAlignment = TextAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                FontSize = 14,
-                TextAlignment = TextAlignment.Center
+                FontSize = 14
             };
+            splash.Content = txt;
+            splash.Show();
 
-            splashWindow.Content = progressText;
-            splashWindow.Show();
-
-            IProgress<string> progress = new Progress<string>(msg => {
-                progressText.Text = msg;
-                Console.WriteLine($"[LOG] {msg}");
-            });
+            IProgress<string> progress = new Progress<string>(msg => txt.Text = msg);
 
             try
             {
+                // Поочередная загрузка всех зависимостей
                 await DownloadHelper.DownloadFFmpeg(progress);
                 await DownloadHelper.DownloadMediaMTX(progress);
                 await DownloadHelper.DownloadVLC(progress);
 
-                Console.WriteLine("[DEBUG] Все компоненты готовы. Запуск MainWindow...");
-                var mainWindow = new MainWindow();
-                this.MainWindow = mainWindow;
+                progress.Report("🚀 Все готово! Запуск...");
+                await Task.Delay(500); // Чтобы пользователь успел увидеть "Готово"
 
-                splashWindow.Close();
-                mainWindow.Show();
-                this.ShutdownMode = ShutdownMode.OnMainWindowClose;
+                var main = new MainWindow();
+                this.MainWindow = main;
+                splash.Close();
+                main.Show();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[FATAL] Ошибка загрузки: {ex}");
-                MessageBox.Show($"Ошибка при подготовке системы: {ex.Message}");
+                MessageBox.Show($"Критическая ошибка загрузки: {ex.Message}\nПроверьте интернет-соединение.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 this.Shutdown();
+            }
+        }
+
+        public static void KillZombieProcesses()
+        {
+            string[] targets = { "ffmpeg", "mediamtx" };
+            foreach (var name in targets)
+            {
+                foreach (var p in Process.GetProcessesByName(name))
+                {
+                    try { p.Kill(); p.WaitForExit(1000); } catch { }
+                }
             }
         }
 
@@ -90,29 +75,6 @@ namespace RemoteSystemWpf
         {
             KillZombieProcesses();
             base.OnExit(e);
-        }
-
-        // Глобальный метод очистки
-        public static void KillZombieProcesses()
-        {
-            string[] engines = { "ffmpeg", "mediamtx" };
-
-            foreach (var name in engines)
-            {
-                try
-                {
-                    foreach (var p in Process.GetProcessesByName(name))
-                    {
-                        try
-                        {
-                            p.Kill();
-                            p.WaitForExit(500);
-                        }
-                        catch { }
-                    }
-                }
-                catch { }
-            }
         }
     }
 }

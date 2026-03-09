@@ -3,7 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
+      xmlns:vlc="clr-namespace:Vlc.DotNet.Wpf;assembly=Vlc.DotNet.Wpf"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="Трансляция экрана"
@@ -11,31 +11,24 @@
       Focusable="True" Background="Black">
 
     <Grid x:Name="VideoGrid">
-        <vlc:VideoView x:Name="VideoView_Display" />
+        <vlc:VlcControl x:Name="VlcPlayer" />
 
-        <Popup x:Name="InputPopup" 
-               PlacementTarget="{Binding ElementName=VideoView_Display}" 
-               Placement="Center"
-               StaysOpen="True"
-               AllowsTransparency="True"
-               Focusable="False">
-            <Border x:Name="VideoView_Commands" 
-                    Background="#01000000"
-                    MouseDown="InputOverlay_MouseDown"
-                    MouseMove="InputOverlay_MouseMove"
-                    MouseUp="InputOverlay_MouseUp"
-                    MouseWheel="InputOverlay_MouseWheel"
-                    Focusable="True"/>
-        </Popup>
+        <Border x:Name="VideoView_Commands" 
+                Background="#01000000"
+                MouseDown="InputOverlay_MouseDown"
+                MouseMove="InputOverlay_MouseMove"
+                MouseUp="InputOverlay_MouseUp"
+                MouseWheel="InputOverlay_MouseWheel"
+                Focusable="True"
+                Panel.ZIndex="1"/>
 
         <Button Content="Отключиться (Esc)" 
-                Click="Disconnect_Click" 
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Top" 
-                Margin="10" 
-                Padding="15,5" 
-                Background="#CCFFFFFF" 
-                BorderBrush="Transparent"
-                Panel.ZIndex="10"/>
+            Click="Disconnect_Click" 
+            HorizontalAlignment="Center" 
+            VerticalAlignment="Top" 
+            Margin="10" 
+            Padding="15,5" 
+            Background="#CCFFFFFF" 
+            Panel.ZIndex="10"/>
     </Grid>
 </Page>

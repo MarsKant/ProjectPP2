@@ -14,8 +14,9 @@
             <Grid.Background>
                 <ImageBrush ImageSource="pack://application:,,,/RemoteSystemWpf;component/Images/DefaultBackground.jpg" Stretch="UniformToFill"/>
             </Grid.Background>
-            <Rectangle Fill="#40000000"/>
         </Grid>
+
+        <Rectangle Fill="#40000000"/>
 
         <Border x:Name="ConnectionPanel" Background="#CCFFFFFF" BorderBrush="Black" 
                 BorderThickness="1.5" CornerRadius="6" Padding="20" 
@@ -42,8 +43,75 @@
                 </Grid>
 
                 <UniformGrid Columns="2">
-                    <Button x:Name="BackBtn" Content="Назад" Click="Back_Click" Height="35" Margin="0,0,5,0" Background="#F5DEB3"/>
-                    <Button x:Name="ConnectBtn" Content="Подключиться" Click="Connect_Click" Height="35" Margin="5,0,0,0" Background="#F5DEB3"/>
+                    <Border
+                        CornerRadius="10"
+                        BorderBrush="Black"
+                        BorderThickness="2"
+                        Background="#80FFFFFF"
+                        Height="35">
+                        <Button x:Name="BackBtn" Content="Назад" Click="Back_Click" Height="35" Background="Transparent" BorderBrush="Transparent" Margin="-2,-2,-2,-2">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="BorderBrush" Value="Transparent"/>
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}">
+                                                    <ContentPresenter HorizontalAlignment="Center" 
+                              VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Background" Value="Transparent"/>
+                                                        <Setter Property="Foreground" Value="Gray"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </Border>
+                    <Border
+                        CornerRadius="10"
+                        BorderBrush="Black"
+                        BorderThickness="2"
+                        Background="#80FFFFFF"
+                        Height="35"
+                        Margin="5,0,0,0">
+                        <Button x:Name="ConnectBtn" Content="Подключиться" Click="Connect_Click" Height="35"  Background="Transparent" BorderBrush="Transparent" Margin="-2,-2,-2,-2">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="BorderBrush" Value="Transparent"/>
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}">
+                                                    <ContentPresenter HorizontalAlignment="Center" 
+                              VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Background" Value="Transparent"/>
+                                                        <Setter Property="Foreground" Value="Gray"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </Border>
                 </UniformGrid>
             </StackPanel>
         </Border>
