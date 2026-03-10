@@ -30,7 +30,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="IP сервера:" FontSize="14" VerticalAlignment="Center"/>
-                    <TextBox Grid.Column="1" x:Name="IpBox" Text="127.0.0.1" Height="28" VerticalContentAlignment="Center" Padding="5,0"/>
+                    <TextBox Grid.Column="1" x:Name="IpBox" Text="" Height="28" VerticalContentAlignment="Center" Padding="5,0"/>
                 </Grid>
 
                 <Grid Margin="0,0,0,20">
@@ -39,7 +39,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Порт:" FontSize="14" VerticalAlignment="Center"/>
-                    <TextBox Grid.Column="1" x:Name="PortBox" Text="8554" Height="28" VerticalContentAlignment="Center" Padding="5,0"/>
+                    <TextBox Grid.Column="1" x:Name="PortBox" Text="8890" Height="28" VerticalContentAlignment="Center" Padding="5,0"/>
                 </Grid>
 
                 <UniformGrid Columns="2">

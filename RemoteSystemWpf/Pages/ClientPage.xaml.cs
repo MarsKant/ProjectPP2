@@ -22,7 +22,6 @@ namespace RemoteSystemWpf.Pages
                 return;
             }
 
-            // Переходим на страницу трансляции, передавая IP и порт
             MainWindow.main.SwapFrame(new StreamPage(ip, port));
         }
 

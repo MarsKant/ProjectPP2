@@ -66,7 +66,7 @@ namespace RemoteSystemWpf.Pages
             try
             {
                 _tcpClient = new TcpClient();
-                await _tcpClient.ConnectAsync(_serverIp, 8890);
+                await _tcpClient.ConnectAsync(_serverIp, int.Parse(_serverPort));
                 _stream = _tcpClient.GetStream();
 
                 byte[] buffer = new byte[1024];
@@ -80,7 +80,7 @@ namespace RemoteSystemWpf.Pages
                     _serverHeight = double.Parse(parts[2]);
                 }
 
-                string rtspUrl = $"rtsp://{_serverIp}:{_serverPort}/stream";
+                string rtspUrl = $"rtsp://{_serverIp}:8554/stream";
                 string[] options = new string[]
                 {
                     ":network-caching=100",
@@ -109,7 +109,6 @@ namespace RemoteSystemWpf.Pages
             catch { }
         }
 
-        // --- Управление Мышью с учетом черных полос ---
 
         private void InputOverlay_MouseMove(object sender, MouseEventArgs e)
         {
@@ -117,7 +116,6 @@ namespace RemoteSystemWpf.Pages
 
             Point p = e.GetPosition(VideoView_Commands);
 
-            // Математический расчет для компенсации черных полос (Letterboxing)
             double serverRatio = _serverWidth / _serverHeight;
             double clientRatio = VideoView_Commands.ActualWidth / VideoView_Commands.ActualHeight;
 
@@ -128,25 +126,21 @@ namespace RemoteSystemWpf.Pages
 
             if (clientRatio > serverRatio)
             {
-                // Полосы по бокам
                 actualVideoWidth = VideoView_Commands.ActualHeight * serverRatio;
                 offsetX = (VideoView_Commands.ActualWidth - actualVideoWidth) / 2;
             }
             else
             {
-                // Полосы сверху и снизу
                 actualVideoHeight = VideoView_Commands.ActualWidth / serverRatio;
                 offsetY = (VideoView_Commands.ActualHeight - actualVideoHeight) / 2;
             }
 
-            // Пересчет клика относительно РЕАЛЬНОГО изображения видео
             double relativeX = (p.X - offsetX) / actualVideoWidth;
             double relativeY = (p.Y - offsetY) / actualVideoHeight;
 
             int finalX = (int)(relativeX * _serverWidth);
             int finalY = (int)(relativeY * _serverHeight);
 
-            // Ограничиваем координаты от 0 до максимума сервера
             finalX = Math.Max(0, Math.Min((int)_serverWidth, finalX));
             finalY = Math.Max(0, Math.Min((int)_serverHeight, finalY));
 
@@ -174,7 +168,6 @@ namespace RemoteSystemWpf.Pages
             e.Handled = true;
         }
 
-        // --- Управление Клавиатурой ---
 
         private void InputOverlay_KeyDown(object sender, KeyEventArgs e)
         {
@@ -199,7 +192,6 @@ namespace RemoteSystemWpf.Pages
 
         private void Disconnect_Click(object sender, RoutedEventArgs e)
         {
-            // Отключаем обработчики событий, чтобы они не срабатывали во время закрытия
             this.PreviewKeyDown -= InputOverlay_KeyDown;
             this.PreviewKeyUp -= InputOverlay_KeyUp;
 
@@ -208,10 +200,8 @@ namespace RemoteSystemWpf.Pages
 
         private async void ReturnToClientPage()
         {
-            // Запускаем очистку в фоновом потоке, чтобы UI не завис
             await Task.Run(() => Cleanup());
 
-            // Переходим на другую страницу через Dispatcher
             Dispatcher.Invoke(() =>
             {
                 if (MainWindow.main != null)
@@ -223,7 +213,6 @@ namespace RemoteSystemWpf.Pages
         {
             try
             {
-                // 1. Сначала останавливаем плеер (это может занять время)
                 if (VlcPlayer?.SourceProvider?.MediaPlayer != null)
                 {
                     if (VlcPlayer.SourceProvider.MediaPlayer.IsPlaying())
@@ -232,7 +221,6 @@ namespace RemoteSystemWpf.Pages
                     }
                 }
 
-                // 2. Закрываем сетевые потоки
                 _stream?.Dispose();
                 _tcpClient?.Close();
                 _stream = null;
@@ -240,7 +228,6 @@ namespace RemoteSystemWpf.Pages
             }
             catch (Exception ex)
             {
-                // Логируем ошибку в консоль, чтобы не прерывать выполнение
                 System.Diagnostics.Debug.WriteLine("Ошибка при очистке: " + ex.Message);
             }
         }

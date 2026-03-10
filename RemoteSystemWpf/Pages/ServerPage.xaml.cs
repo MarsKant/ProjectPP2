@@ -26,11 +26,20 @@ namespace RemoteSystemWpf.Pages
         {
             try
             {
-                AddLog("[SYSTEM] Очистка процессов через App...");
+                AddLog("Очистка процессов...");
                 App.KillZombieProcesses();
 
                 if (!int.TryParse(portBox.Text, out int cmdPort)) cmdPort = 8890;
                 int videoPort = 8554;
+
+                var host = Dns.GetHostEntry(Dns.GetHostName());
+                var ipAddress = host.AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+                if (ipAddress == null)
+                {
+                    AddLog("Не удалось найти ip адрес.");
+                    return;
+                }
+                string ipAdressString = ipAddress.ToString();
 
                 string baseDir = AppDomain.CurrentDomain.BaseDirectory;
                 string mtxDir = Path.Combine(baseDir, "MediaMTX");
@@ -41,7 +50,7 @@ namespace RemoteSystemWpf.Pages
                 string mtxConfig = "paths:\n  all:\n    source: publisher\n" +
                                    "readBufferCount: 2048\n" +
                                    "protocols: [tcp]\n" +
-                                   "rtspAddress: :8554\n";
+                                   $"rtspAddress: :{videoPort}\n";
                 File.WriteAllText(Path.Combine(mtxDir, "mediamtx.yml"), mtxConfig);
 
                 _rtspServer = new Process();
@@ -66,18 +75,18 @@ namespace RemoteSystemWpf.Pages
                 _ffmpeg.StartInfo.UseShellExecute = false;
                 _ffmpeg.Start();
 
-                // 3. Сервер команд
                 _isListening = true;
                 _listener = new TcpListener(IPAddress.Any, cmdPort);
                 _listener.Start();
 
                 new Thread(AcceptClientsLoop).Start();
 
-                AddLog($"[OK] Сервер активен. Порт: {cmdPort}");
+                AddLog($" Сервер активен.");
+                AddLog($"Адрес:{ipAdressString}:{cmdPort}.");
                 Startbtn.IsEnabled = false;
                 Stopbtn.IsEnabled = true;
             }
-            catch (Exception ex) { AddLog($"[ERROR] {ex.Message}"); }
+            catch (Exception ex) { AddLog($"Ошибка запуска сервера: {ex.Message}"); }
         }
 
         private void AcceptClientsLoop()
@@ -105,7 +114,7 @@ namespace RemoteSystemWpf.Pages
                     string sizeMsg = $"SIZE|{screenWidth}|{screenHeight}";
                     byte[] sizeData = Encoding.UTF8.GetBytes(sizeMsg);
                     stream.Write(sizeData, 0, sizeData.Length);
-                    AddLog($"[NET] Клиент подключен.");
+                    AddLog($"Клиент подключен.");
                 }
                 catch { return; }
 
@@ -177,7 +186,7 @@ namespace RemoteSystemWpf.Pages
             Dispatcher.Invoke(() => {
                 Startbtn.IsEnabled = true;
                 Stopbtn.IsEnabled = false;
-                AddLog("[SYSTEM] Сервер остановлен.");
+                AddLog("Сервер остановлен.");
             });
         }
 

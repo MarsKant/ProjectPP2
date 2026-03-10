@@ -42,7 +42,7 @@
                      HorizontalAlignment="Left"
                      VerticalContentAlignment="Center"
                      Background="#80FFFFFF"
-                     Text="8554"/>
+                     Text="8890"/>
             <Border CornerRadius="10"
                     BorderBrush="Black"
                     BorderThickness="2"
