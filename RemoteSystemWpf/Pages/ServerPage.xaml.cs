@@ -10,8 +10,8 @@ using System.Windows.Controls;
 using System.Runtime.InteropServices;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Drawing;
 using System.Windows.Media;
+using RemoteSystemWpf.Classes;
 
 namespace RemoteSystemWpf.Pages
 {
@@ -29,24 +29,30 @@ namespace RemoteSystemWpf.Pages
             try
             {
                 App.KillZombieProcesses();
-                AddLog("Процессы очищены.", System.Windows.Media.Brushes.LightGreen);
+                AddLog("Подготовка среды...", Brushes.LightGreen);
 
                 int cmdPort = 8890;
                 int videoPort = 8554;
 
                 var host = Dns.GetHostEntry(Dns.GetHostName());
-                var ipAddress = host.AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+                var tailscaleIp = host.AddressList.FirstOrDefault(ip =>
+                    ip.AddressFamily == AddressFamily.InterNetwork &&
+                    ip.ToString().StartsWith("100."));
+
+                var ipAddress = tailscaleIp ?? host.AddressList.FirstOrDefault(ip =>
+                    ip.AddressFamily == AddressFamily.InterNetwork &&
+                    !IPAddress.IsLoopback(ip));
+
                 if (ipAddress == null)
                 {
-                    AddLog("Не удалось найти ip адрес.", System.Windows.Media.Brushes.OrangeRed);
+                    AddLog("Ошибка: Сетевой интерфейс не найден.", Brushes.OrangeRed);
                     return;
                 }
-                string ipAdressString = ipAddress.ToString();
 
-                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                string mtxDir = Path.Combine(baseDir, "MediaMTX");
-                string mtxPath = Path.Combine(mtxDir, "mediamtx.exe");
-                string ffmpegPath = Path.Combine(baseDir, "ffmpeg", "ffmpeg.exe");
+                string ipAddressString = ipAddress.ToString();
+                string mtxDir = PathsConfig.MediaMTXDir;
+                string mtxPath = PathsConfig.MediaMTXExe;
+                string ffmpegPath = PathsConfig.FFmpegExe;
 
                 Directory.CreateDirectory(mtxDir);
                 string mtxConfig = "paths:\n  all:\n    source: publisher\n" +
@@ -62,14 +68,12 @@ namespace RemoteSystemWpf.Pages
                 _rtspServer.StartInfo.UseShellExecute = false;
                 _rtspServer.Start();
 
-                Thread.Sleep(1000);
+                Thread.Sleep(1500);
 
                 string args = $"-f gdigrab -framerate 30 -i desktop " +
                               $"-c:v libx264 -preset ultrafast -tune zerolatency " +
-                              $"-b:v 6000k -maxrate 6000k -bufsize 3000k " + 
-                              $"-crf 23 " +
-                              $"-g 60 " +
-                              $"-pix_fmt yuv420p -max_muxing_queue_size 1024 " +
+                              $"-crf 18 -b:v 12000k -maxrate 15000k -bufsize 3000k " +
+                              $"-g 30 -pix_fmt yuv420p " +
                               $"-f rtsp -rtsp_transport tcp rtsp://127.0.0.1:{videoPort}/stream";
 
                 _ffmpeg = new Process();
@@ -85,12 +89,15 @@ namespace RemoteSystemWpf.Pages
 
                 new Thread(AcceptClientsLoop).Start();
 
-                AddLog($"Сервер активен.", System.Windows.Media.Brushes.LightGreen);
-                AddLog($"Адрес: {ipAdressString}:{cmdPort}.", System.Windows.Media.Brushes.LightGreen);
+                AddLog($"Сервер запущен (Tailscale: {(tailscaleIp != null ? "Да" : "Нет")})", Brushes.LightGreen);
+                string accessID = GenerateID(ipAddressString);
+                AddLog($"Ваш ID для подключения:", Brushes.LightGreen);
+                AddLog($"{accessID}", Brushes.LightGreen);
+
                 Startbtn.IsEnabled = false;
                 Stopbtn.IsEnabled = true;
             }
-            catch (Exception ex) { AddLog($"Ошибка запуска сервера: {ex.Message}", System.Windows.Media.Brushes.OrangeRed); }
+            catch (Exception ex) { AddLog($"Ошибка: {ex.Message}", Brushes.OrangeRed); }
         }
 
         private void AcceptClientsLoop()
@@ -103,7 +110,7 @@ namespace RemoteSystemWpf.Pages
                     Task.Run(() => HandleClient(client));
                 }
             }
-            catch { if (_isListening) Dispatcher.Invoke(() => AddLog("Сеть остановлена.", System.Windows.Media.Brushes.OrangeRed)); }
+            catch { if (_isListening) Dispatcher.Invoke(() => AddLog("Сеть остановлена.", Brushes.OrangeRed)); }
         }
 
         private void HandleClient(TcpClient client)
@@ -118,7 +125,7 @@ namespace RemoteSystemWpf.Pages
                     string sizeMsg = $"SIZE|{screenWidth}|{screenHeight}";
                     byte[] sizeData = Encoding.UTF8.GetBytes(sizeMsg);
                     stream.Write(sizeData, 0, sizeData.Length);
-                    AddLog($"Клиент подключен.", System.Windows.Media.Brushes.LightGreen);
+                    AddLog($"Клиент подключен.", Brushes.LightGreen);
                 }
                 catch { return; }
 
@@ -129,10 +136,8 @@ namespace RemoteSystemWpf.Pages
                     {
                         int bytesRead = stream.Read(buffer, 0, buffer.Length);
                         if (bytesRead == 0) break;
-
                         string data = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                        string[] commands = data.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
-                        foreach (var cmd in commands) ExecuteCommand(cmd);
+                        foreach (var cmd in data.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)) ExecuteCommand(cmd);
                     }
                     catch { break; }
                 }
@@ -145,30 +150,14 @@ namespace RemoteSystemWpf.Pages
             {
                 string[] p = command.Split('|');
                 if (p.Length < 2) return;
-
                 switch (p[0])
                 {
-                    case "MOUSE_MOVE":
-                        SetCursorPos(int.Parse(p[1]), int.Parse(p[2]));
-                        break;
-                    case "MOUSE_DOWN":
-                        uint downFlag = (p[1] == "LEFT" || p[1] == "0") ? 0x0002u : 0x0008u;
-                        mouse_event(downFlag, 0, 0, 0, UIntPtr.Zero);
-                        break;
-                    case "MOUSE_UP":
-                        uint upFlag = (p[1] == "LEFT" || p[1] == "0") ? 0x0004u : 0x0010u;
-                        mouse_event(upFlag, 0, 0, 0, UIntPtr.Zero);
-                        break;
-                    case "MOUSE_WHEEL":
-                        int wheelDelta = int.Parse(p[1]);
-                        mouse_event(0x0800, 0, 0, (uint)wheelDelta, UIntPtr.Zero);
-                        break;
-                    case "KEY_DOWN":
-                        keybd_event((byte)int.Parse(p[1]), 0, 0, UIntPtr.Zero);
-                        break;
-                    case "KEY_UP":
-                        keybd_event((byte)int.Parse(p[1]), 0, 0x0002u, UIntPtr.Zero);
-                        break;
+                    case "MOUSE_MOVE": SetCursorPos(int.Parse(p[1]), int.Parse(p[2])); break;
+                    case "MOUSE_DOWN": mouse_event((p[1] == "LEFT" || p[1] == "0") ? 0x0002u : 0x0008u, 0, 0, 0, UIntPtr.Zero); break;
+                    case "MOUSE_UP": mouse_event((p[1] == "LEFT" || p[1] == "0") ? 0x0004u : 0x0010u, 0, 0, 0, UIntPtr.Zero); break;
+                    case "MOUSE_WHEEL": mouse_event(0x0800, 0, 0, (uint)int.Parse(p[1]), UIntPtr.Zero); break;
+                    case "KEY_DOWN": keybd_event((byte)int.Parse(p[1]), 0, 0, UIntPtr.Zero); break;
+                    case "KEY_UP": keybd_event((byte)int.Parse(p[1]), 0, 0x0002u, UIntPtr.Zero); break;
                 }
             }
             catch { }
@@ -178,45 +167,29 @@ namespace RemoteSystemWpf.Pages
         {
             _isListening = false;
             _listener?.Stop();
-            try
-            {
-                if (_ffmpeg != null && !_ffmpeg.HasExited) _ffmpeg.Kill();
-                if (_rtspServer != null && !_rtspServer.HasExited) _rtspServer.Kill();
-            }
-            catch { }
-
+            if (_ffmpeg != null && !_ffmpeg.HasExited) _ffmpeg.Kill();
+            if (_rtspServer != null && !_rtspServer.HasExited) _rtspServer.Kill();
             App.KillZombieProcesses();
-
             Dispatcher.Invoke(() => {
                 Startbtn.IsEnabled = true;
                 Stopbtn.IsEnabled = false;
-                AddLog("Сервер остановлен.", System.Windows.Media.Brushes.OrangeRed);
+                AddLog("Сервер остановлен.", Brushes.OrangeRed);
             });
         }
 
         private void Stop_Click(object sender, RoutedEventArgs e) => Stop();
         private void Page_Unloaded(object sender, RoutedEventArgs e) => Stop();
-        private void AddLog(string m)
-        {
-            AddLog(m, System.Windows.Media.Brushes.White);
-        }
-        private void AddLog(string m, System.Windows.Media.Brush foreground)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                try
-                {
-                    LogBox.Foreground = foreground;
-                    var newItem = new ListBoxItem
-                    {
-                        Content = $"[{DateTime.Now:HH:mm:ss}] {m}",
-                        Foreground = foreground
-                    };
 
-                    LogBox.Items.Add(newItem);
-                    LogBox.ScrollIntoView(newItem);
-                }
-                catch {}
+        private void AddLog(string m, Brush f = null)
+        {
+            Dispatcher.Invoke(() => {
+                var item = new ListBoxItem
+                {
+                    Content = $"[{DateTime.Now:HH:mm:ss}] {m}",
+                    Foreground = f ?? Brushes.LightGreen
+                };
+                LogBox.Items.Add(item);
+                LogBox.ScrollIntoView(item);
             });
         }
 
@@ -224,9 +197,19 @@ namespace RemoteSystemWpf.Pages
         [DllImport("user32.dll")] static extern void mouse_event(uint f, uint x, uint y, uint d, UIntPtr e);
         [DllImport("user32.dll")] static extern void keybd_event(byte b, byte s, uint f, UIntPtr e);
 
-        private void Back_Click(object sender, RoutedEventArgs e)
+        private void Back_Click(object sender, RoutedEventArgs e) => MainWindow.main.SwapFrame(new SelectionPage());
+
+        private string GenerateID(string ip)
         {
-            MainWindow.main.SwapFrame(new SelectionPage());
+            var parts = ip.Split('.');
+            if (parts.Length != 4) return "000000000";
+
+            long id = (long.Parse(parts[0]) << 24) |
+                      (long.Parse(parts[1]) << 16) |
+                      (long.Parse(parts[2]) << 8) |
+                       long.Parse(parts[3]);
+
+            return id.ToString().PadLeft(9, '0');
         }
     }
 }

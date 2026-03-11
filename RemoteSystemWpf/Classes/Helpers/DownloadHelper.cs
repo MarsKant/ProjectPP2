@@ -5,29 +5,34 @@ using System.Net.Http;
 using System.IO.Compression;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Diagnostics;
 
 namespace RemoteSystemWpf.Helpers
 {
     public static class DownloadHelper
     {
         private static readonly HttpClient _client = new HttpClient();
-        private static readonly string BaseDir = AppDomain.CurrentDomain.BaseDirectory;
+
+        private static readonly string RootInstallDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+            "RemoteSystem");
 
         public static async Task<bool> DownloadFFmpeg(IProgress<string> progress = null)
         {
             try
             {
-                string ffmpegDir = Path.Combine(BaseDir, "ffmpeg");
+                string ffmpegDir = Path.Combine(RootInstallDir, "ffmpeg");
                 if (File.Exists(Path.Combine(ffmpegDir, "ffmpeg.exe"))) { progress?.Report("✅ FFmpeg готов"); return true; }
 
                 string url = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip";
-                string zipPath = Path.Combine(BaseDir, "ffmpeg_temp.zip");
+                string zipPath = Path.Combine(Path.GetTempPath(), "ffmpeg_temp.zip");
 
                 await DownloadFile(url, zipPath, "FFmpeg", progress);
                 progress?.Report("📦 Распаковка FFmpeg...");
 
-                await Task.Run(() => {
-                    string tempDir = Path.Combine(BaseDir, "temp_ff");
+                await Task.Run(() =>
+                {
+                    string tempDir = Path.Combine(Path.GetTempPath(), "temp_ff");
                     if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
                     ZipFile.ExtractToDirectory(zipPath, tempDir);
 
@@ -50,17 +55,18 @@ namespace RemoteSystemWpf.Helpers
         {
             try
             {
-                string mtxDir = Path.Combine(BaseDir, "MediaMTX");
+                string mtxDir = Path.Combine(RootInstallDir, "MediaMTX");
                 if (File.Exists(Path.Combine(mtxDir, "mediamtx.exe"))) { progress?.Report("✅ MediaMTX готов"); return true; }
 
                 string url = "https://github.com/bluenviron/mediamtx/releases/download/v1.16.3/mediamtx_v1.16.3_windows_amd64.zip";
-                string zipPath = Path.Combine(BaseDir, "mtx_temp.zip");
+                string zipPath = Path.Combine(Path.GetTempPath(), "mtx_temp.zip");
 
                 await DownloadFile(url, zipPath, "MediaMTX", progress);
                 progress?.Report("📦 Распаковка MediaMTX...");
 
                 Directory.CreateDirectory(mtxDir);
-                await Task.Run(() => {
+                await Task.Run(() =>
+                {
                     using (var archive = ZipFile.OpenRead(zipPath))
                     {
                         foreach (var entry in archive.Entries)
@@ -82,21 +88,22 @@ namespace RemoteSystemWpf.Helpers
         {
             try
             {
-                string vlcDir = Path.Combine(BaseDir, "libvlc", "win-x64");
+                string vlcDir = Path.Combine(RootInstallDir, "libvlc", "win-x64");
                 if (File.Exists(Path.Combine(vlcDir, "libvlc.dll"))) { progress?.Report("✅ VLC готов"); return true; }
 
                 string url = "https://get.videolan.org/vlc/3.0.11/win64/vlc-3.0.11-win64.zip";
-                string zipPath = Path.Combine(BaseDir, "vlc_temp.zip");
+                string zipPath = Path.Combine(Path.GetTempPath(), "vlc_temp.zip");
 
                 await DownloadFile(url, zipPath, "VLC (100MB)", progress);
                 progress?.Report("📦 Распаковка библиотек VLC...");
 
-                await Task.Run(() => {
-                    string tempDir = Path.Combine(BaseDir, "temp_vlc");
+                await Task.Run(() =>
+                {
+                    string tempDir = Path.Combine(Path.GetTempPath(), "temp_vlc");
                     if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
                     ZipFile.ExtractToDirectory(zipPath, tempDir);
 
-                    string innerPath = Directory.GetDirectories(tempDir).FirstOrDefault(); // папка vlc-3.0.11
+                    string innerPath = Directory.GetDirectories(tempDir).FirstOrDefault();
                     if (innerPath != null)
                     {
                         Directory.CreateDirectory(vlcDir);
@@ -111,6 +118,38 @@ namespace RemoteSystemWpf.Helpers
                 return true;
             }
             catch (Exception ex) { progress?.Report($"❌ VLC: {ex.Message}"); throw; }
+        }
+
+        public static async Task<bool> InstallTailscale(IProgress<string> progress = null)
+        {
+            try
+            {
+                string tsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Tailscale", "tailscale-ipn.exe");
+                if (File.Exists(tsPath)) { progress?.Report("✅ Tailscale уже установлен"); return true; }
+
+                string url = "https://pkgs.tailscale.com/stable/tailscale-setup-latest.exe";
+                string exePath = Path.Combine(Path.GetTempPath(), "tailscale_setup.exe");
+
+                await DownloadFile(url, exePath, "Tailscale", progress);
+                progress?.Report("⚙️ Установка Tailscale (может потребоваться подтверждение)...");
+
+                await Task.Run(() =>
+                {
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = exePath,
+                        Arguments = "/quiet",
+                        Verb = "runas",
+                        UseShellExecute = true
+                    };
+                    var process = Process.Start(startInfo);
+                    process?.WaitForExit();
+                });
+
+                if (File.Exists(exePath)) File.Delete(exePath);
+                return true;
+            }
+            catch (Exception ex) { progress?.Report($"⚠️ Tailscale: {ex.Message}"); return false; }
         }
 
         private static async Task DownloadFile(string url, string path, string name, IProgress<string> progress)

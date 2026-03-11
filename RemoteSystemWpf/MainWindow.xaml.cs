@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
-using LibVLCSharp.Shared;
 
 namespace RemoteSystemWpf
 {
@@ -11,7 +10,6 @@ namespace RemoteSystemWpf
         public MainWindow()
         {
             main = this;
-            Core.Initialize();
             InitializeComponent();
             SwapFrame(new Pages.SelectionPage());
         }

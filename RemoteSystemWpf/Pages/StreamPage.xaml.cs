@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RemoteSystemWpf.Classes;
+using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Reflection;
@@ -22,10 +23,10 @@ namespace RemoteSystemWpf.Pages
         private double _serverWidth = 1920;
         private double _serverHeight = 1080;
 
-        public StreamPage(string ip)
+        public StreamPage(string input)
         {
             InitializeComponent();
-            _serverIp = ip;
+            _serverIp = DecodeID(input);
             _serverPort = "8890";
 
             this.PreviewKeyDown += InputOverlay_KeyDown;
@@ -44,13 +45,11 @@ namespace RemoteSystemWpf.Pages
         {
             try
             {
-                var currentAssembly = Assembly.GetEntryAssembly();
-                var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
-                var vlcLibDirectory = new DirectoryInfo(Path.Combine(currentDirectory, "libvlc", "win-x64"));
+                var vlcLibDirectory = new DirectoryInfo(PathsConfig.VlcLibDir);
 
                 if (!vlcLibDirectory.Exists)
                 {
-                    throw new DirectoryNotFoundException($"VLC библиотеки не найдены: {vlcLibDirectory.FullName}");
+                    throw new DirectoryNotFoundException($"VLC библиотеки не найдены в системе: {vlcLibDirectory.FullName}");
                 }
 
                 VlcPlayer.SourceProvider.CreatePlayer(vlcLibDirectory);
@@ -63,43 +62,55 @@ namespace RemoteSystemWpf.Pages
 
         private async Task ConnectAsync()
         {
-            try
+            int attempts = 3;
+            while (attempts > 0)
             {
-                _tcpClient = new TcpClient();
-                await _tcpClient.ConnectAsync(_serverIp, int.Parse(_serverPort));
-                _stream = _tcpClient.GetStream();
-
-                byte[] buffer = new byte[1024];
-                int bytesRead = await _stream.ReadAsync(buffer, 0, buffer.Length);
-                string response = Encoding.UTF8.GetString(buffer, 0, bytesRead).Trim();
-
-                if (response.StartsWith("SIZE"))
+                try
                 {
-                    string[] parts = response.Split('|');
-                    _serverWidth = double.Parse(parts[1]);
-                    _serverHeight = double.Parse(parts[2]);
+                    _tcpClient = new TcpClient();
+                    var connectTask = _tcpClient.ConnectAsync(_serverIp, int.Parse(_serverPort));
+                    if (await Task.WhenAny(connectTask, Task.Delay(5000)) != connectTask)
+                    {
+                        throw new Exception("Превышено время ожидания подключения.");
+                    }
+
+                    _stream = _tcpClient.GetStream();
+                    _stream.ReadTimeout = 5000;
+
+                    byte[] buffer = new byte[1024];
+                    int bytesRead = await _stream.ReadAsync(buffer, 0, buffer.Length);
+                    string response = Encoding.UTF8.GetString(buffer, 0, bytesRead).Trim();
+
+                    if (response.StartsWith("SIZE"))
+                    {
+                        string[] parts = response.Split('|');
+                        _serverWidth = double.Parse(parts[1]);
+                        _serverHeight = double.Parse(parts[2]);
+                    }
+
+                    string rtspUrl = $"rtsp://{_serverIp}:8554/stream";
+                    string[] options = new string[]
+                    {
+                        ":network-caching=300",
+                        ":rtsp-transport=tcp",
+                        ":no-audio",
+                        ":clock-jitter=0",
+                        ":rtsp-frame-buffer-size=500000"
+                    };
+
+                    VlcPlayer.SourceProvider.MediaPlayer.Play(new Uri(rtspUrl), options);
+                    return;
                 }
-
-                string rtspUrl = $"rtsp://{_serverIp}:8554/stream";
-                string[] options = new string[]
+                catch (Exception ex)
                 {
-                    ":network-caching=300",
-                    ":rtsp-transport=tcp",
-                    ":no-audio",
-                    "--aout=dummy",
-                    ":clock-jitter=0",
-                    ":clock-synchro=0",
-                    ":no-video-title-show",
-                    ":fflags=nobuffer",
-                    ":rtsp-frame-buffer-size=100000"
-                };
-
-                VlcPlayer.SourceProvider.MediaPlayer.Play(new Uri(rtspUrl), options);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка сети: {ex.Message}");
-                ReturnToClientPage();
+                    attempts--;
+                    if (attempts == 0)
+                    {
+                        MessageBox.Show($"Не удалось подключиться к {_serverIp}. Проверьте, запущен ли Tailscale на обоих ПК.\nОшибка: {ex.Message}");
+                        ReturnToClientPage();
+                    }
+                    await Task.Delay(2000);
+                }
             }
         }
 
@@ -176,9 +187,9 @@ namespace RemoteSystemWpf.Pages
 
         private void InputOverlay_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Escape)
+            if (e.Key == Key.Escape && (Keyboard.Modifiers & ModifierKeys.Shift) != 0)
             {
-                Disconnect_Click(null, null);
+                Disconnect();
                 e.Handled = true;
                 return;
             }
@@ -195,7 +206,7 @@ namespace RemoteSystemWpf.Pages
             e.Handled = true;
         }
 
-        private void Disconnect_Click(object sender, RoutedEventArgs e)
+        private void Disconnect()
         {
             this.PreviewKeyDown -= InputOverlay_KeyDown;
             this.PreviewKeyUp -= InputOverlay_KeyUp;
@@ -241,6 +252,18 @@ namespace RemoteSystemWpf.Pages
         {
             Cleanup();
             VlcPlayer?.Dispose();
+        }
+
+        private string DecodeID(string id)
+        {
+            if (id.Contains(".")) return id;
+
+            if (long.TryParse(id, out long numericId))
+            {
+                string ip = $"{(numericId >> 24) & 0xFF}.{(numericId >> 16) & 0xFF}.{(numericId >> 8) & 0xFF}.{numericId & 0xFF}";
+                return ip;
+            }
+            return id;
         }
     }
 }

@@ -3,7 +3,6 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="Клиент удаленного доступа"
@@ -29,8 +28,8 @@
                         <ColumnDefinition Width="90"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="IP сервера:" FontSize="14" VerticalAlignment="Center"/>
-                    <TextBox Text="26.66.25.121" Grid.Column="1" x:Name="IpBox" Height="28" VerticalContentAlignment="Center" Padding="5,0"/>
+                    <TextBlock Text="Id сервера:" FontSize="14" VerticalAlignment="Center"/>
+                    <TextBox Text="" Grid.Column="1" x:Name="IdBox" Height="28" VerticalContentAlignment="Center" Padding="5,0"/>
                 </Grid>
 
                 <Grid Margin="0,0,0,20">

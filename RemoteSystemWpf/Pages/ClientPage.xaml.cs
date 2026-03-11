@@ -13,8 +13,8 @@ namespace RemoteSystemWpf.Pages
 
         private void Connect_Click(object sender, RoutedEventArgs e)
         {
-            string ip = IpBox.Text.Trim();
-            MainWindow.main.SwapFrame(new StreamPage(ip));
+            string id = IdBox.Text.Trim();
+            MainWindow.main.SwapFrame(new StreamPage(id));
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)
