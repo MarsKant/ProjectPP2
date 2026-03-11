@@ -10,6 +10,8 @@ using System.Windows.Controls;
 using System.Runtime.InteropServices;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Drawing;
+using System.Windows.Media;
 
 namespace RemoteSystemWpf.Pages
 {
@@ -26,17 +28,17 @@ namespace RemoteSystemWpf.Pages
         {
             try
             {
-                AddLog("Очистка процессов...");
                 App.KillZombieProcesses();
+                AddLog("Процессы очищены.", System.Windows.Media.Brushes.LightGreen);
 
-                if (!int.TryParse(portBox.Text, out int cmdPort)) cmdPort = 8890;
+                int cmdPort = 8890;
                 int videoPort = 8554;
 
                 var host = Dns.GetHostEntry(Dns.GetHostName());
                 var ipAddress = host.AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
                 if (ipAddress == null)
                 {
-                    AddLog("Не удалось найти ip адрес.");
+                    AddLog("Не удалось найти ip адрес.", System.Windows.Media.Brushes.OrangeRed);
                     return;
                 }
                 string ipAdressString = ipAddress.ToString();
@@ -64,7 +66,9 @@ namespace RemoteSystemWpf.Pages
 
                 string args = $"-f gdigrab -framerate 30 -i desktop " +
                               $"-c:v libx264 -preset ultrafast -tune zerolatency " +
-                              $"-b:v 2500k -maxrate 2500k -bufsize 5000k -g 30 " +
+                              $"-b:v 6000k -maxrate 6000k -bufsize 3000k " + 
+                              $"-crf 23 " +
+                              $"-g 60 " +
                               $"-pix_fmt yuv420p -max_muxing_queue_size 1024 " +
                               $"-f rtsp -rtsp_transport tcp rtsp://127.0.0.1:{videoPort}/stream";
 
@@ -81,12 +85,12 @@ namespace RemoteSystemWpf.Pages
 
                 new Thread(AcceptClientsLoop).Start();
 
-                AddLog($" Сервер активен.");
-                AddLog($"Адрес:{ipAdressString}:{cmdPort}.");
+                AddLog($"Сервер активен.", System.Windows.Media.Brushes.LightGreen);
+                AddLog($"Адрес: {ipAdressString}:{cmdPort}.", System.Windows.Media.Brushes.LightGreen);
                 Startbtn.IsEnabled = false;
                 Stopbtn.IsEnabled = true;
             }
-            catch (Exception ex) { AddLog($"Ошибка запуска сервера: {ex.Message}"); }
+            catch (Exception ex) { AddLog($"Ошибка запуска сервера: {ex.Message}", System.Windows.Media.Brushes.OrangeRed); }
         }
 
         private void AcceptClientsLoop()
@@ -99,7 +103,7 @@ namespace RemoteSystemWpf.Pages
                     Task.Run(() => HandleClient(client));
                 }
             }
-            catch { if (_isListening) Dispatcher.Invoke(() => AddLog("Сеть остановлена.")); }
+            catch { if (_isListening) Dispatcher.Invoke(() => AddLog("Сеть остановлена.", System.Windows.Media.Brushes.OrangeRed)); }
         }
 
         private void HandleClient(TcpClient client)
@@ -114,7 +118,7 @@ namespace RemoteSystemWpf.Pages
                     string sizeMsg = $"SIZE|{screenWidth}|{screenHeight}";
                     byte[] sizeData = Encoding.UTF8.GetBytes(sizeMsg);
                     stream.Write(sizeData, 0, sizeData.Length);
-                    AddLog($"Клиент подключен.");
+                    AddLog($"Клиент подключен.", System.Windows.Media.Brushes.LightGreen);
                 }
                 catch { return; }
 
@@ -186,16 +190,43 @@ namespace RemoteSystemWpf.Pages
             Dispatcher.Invoke(() => {
                 Startbtn.IsEnabled = true;
                 Stopbtn.IsEnabled = false;
-                AddLog("Сервер остановлен.");
+                AddLog("Сервер остановлен.", System.Windows.Media.Brushes.OrangeRed);
             });
         }
 
         private void Stop_Click(object sender, RoutedEventArgs e) => Stop();
         private void Page_Unloaded(object sender, RoutedEventArgs e) => Stop();
-        private void AddLog(string m) => Dispatcher.Invoke(() => LogBox.Items.Add(m));
+        private void AddLog(string m)
+        {
+            AddLog(m, System.Windows.Media.Brushes.White);
+        }
+        private void AddLog(string m, System.Windows.Media.Brush foreground)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                try
+                {
+                    LogBox.Foreground = foreground;
+                    var newItem = new ListBoxItem
+                    {
+                        Content = $"[{DateTime.Now:HH:mm:ss}] {m}",
+                        Foreground = foreground
+                    };
+
+                    LogBox.Items.Add(newItem);
+                    LogBox.ScrollIntoView(newItem);
+                }
+                catch {}
+            });
+        }
 
         [DllImport("user32.dll")] static extern bool SetCursorPos(int x, int y);
         [DllImport("user32.dll")] static extern void mouse_event(uint f, uint x, uint y, uint d, UIntPtr e);
         [DllImport("user32.dll")] static extern void keybd_event(byte b, byte s, uint f, UIntPtr e);
+
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow.main.SwapFrame(new SelectionPage());
+        }
     }
 }

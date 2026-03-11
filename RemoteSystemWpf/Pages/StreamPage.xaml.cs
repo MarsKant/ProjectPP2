@@ -22,11 +22,11 @@ namespace RemoteSystemWpf.Pages
         private double _serverWidth = 1920;
         private double _serverHeight = 1080;
 
-        public StreamPage(string ip, string port)
+        public StreamPage(string ip)
         {
             InitializeComponent();
             _serverIp = ip;
-            _serverPort = port;
+            _serverPort = "8890";
 
             this.PreviewKeyDown += InputOverlay_KeyDown;
             this.PreviewKeyUp += InputOverlay_KeyUp;
@@ -83,10 +83,15 @@ namespace RemoteSystemWpf.Pages
                 string rtspUrl = $"rtsp://{_serverIp}:8554/stream";
                 string[] options = new string[]
                 {
-                    ":network-caching=100",
+                    ":network-caching=300",
                     ":rtsp-transport=tcp",
                     ":no-audio",
-                    ":no-video-title-show"
+                    "--aout=dummy",
+                    ":clock-jitter=0",
+                    ":clock-synchro=0",
+                    ":no-video-title-show",
+                    ":fflags=nobuffer",
+                    ":rtsp-frame-buffer-size=100000"
                 };
 
                 VlcPlayer.SourceProvider.MediaPlayer.Play(new Uri(rtspUrl), options);

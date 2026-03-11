@@ -14,15 +14,7 @@ namespace RemoteSystemWpf.Pages
         private void Connect_Click(object sender, RoutedEventArgs e)
         {
             string ip = IpBox.Text.Trim();
-            string port = PortBox.Text.Trim();
-
-            if (string.IsNullOrEmpty(ip) || string.IsNullOrEmpty(port))
-            {
-                MessageBox.Show("Заполните IP и Порт");
-                return;
-            }
-
-            MainWindow.main.SwapFrame(new StreamPage(ip, port));
+            MainWindow.main.SwapFrame(new StreamPage(ip));
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)

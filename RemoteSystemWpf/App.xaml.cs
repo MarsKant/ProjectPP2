@@ -13,7 +13,6 @@ namespace RemoteSystemWpf
             base.OnStartup(e);
             KillZombieProcesses();
 
-            // Создаем простой Splash-экран программно
             var splash = new Window
             {
                 Title = "Загрузка ресурсов",
@@ -39,13 +38,12 @@ namespace RemoteSystemWpf
 
             try
             {
-                // Поочередная загрузка всех зависимостей
                 await DownloadHelper.DownloadFFmpeg(progress);
                 await DownloadHelper.DownloadMediaMTX(progress);
                 await DownloadHelper.DownloadVLC(progress);
 
                 progress.Report("🚀 Все готово! Запуск...");
-                await Task.Delay(500); // Чтобы пользователь успел увидеть "Готово"
+                await Task.Delay(500);
 
                 var main = new MainWindow();
                 this.MainWindow = main;
